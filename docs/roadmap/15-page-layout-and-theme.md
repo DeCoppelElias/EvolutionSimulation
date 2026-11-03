@@ -84,8 +84,9 @@ network with `serve --host 0.0.0.0`:
   message naming 5 to 25.
 - The bar, the rail and the drawer hold what this entry lists, and a panel never
   covers the world on a desktop.
-- Clicking a rabbit opens the Inspector over whatever panel was open, and
-  clicking empty ground leaves it open with nothing selected.
+- Clicking a rabbit opens the Inspector over whatever panel was open and shows
+  its sight circle as entry 13 does, and clicking empty ground leaves the
+  Inspector open with nothing selected.
 - Place shows a ghost, places one rabbit a click, and Esc, a right click and
   its button each return to Inspect.
 - A 20 by 20 world opens whole and centred, a 5 by 5 one fills the window, and
