@@ -17,7 +17,8 @@ const ACTIONS: Partial<Record<string, KeyAction>> = {
     ".": "step",
     Escape: "escape",
 };
-const FIELDS = new Set(["INPUT", "SELECT", "TEXTAREA"]);
+const FIELDS = new Set(["SELECT", "TEXTAREA"]);
+const TEXT_INPUTS = new Set(["", "text", "number", "search", "email", "password", "url", "tel"]);
 
 /** A modifier leaves the key to the browser, and typing leaves it to the field. */
 export function actionFor(press: KeyPress): KeyAction | null {
@@ -25,6 +26,8 @@ export function actionFor(press: KeyPress): KeyAction | null {
     return ACTIONS[press.key] ?? null;
 }
 
-export function isTyping(tagName: string, editable: boolean): boolean {
+/** An input that takes keys, so not a slider, a checkbox or a button. */
+export function isTyping(tagName: string, type: string, editable: boolean): boolean {
+    if (tagName === "INPUT") return TEXT_INPUTS.has(type);
     return editable || FIELDS.has(tagName);
 }

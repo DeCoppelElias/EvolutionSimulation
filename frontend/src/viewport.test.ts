@@ -84,6 +84,11 @@ describe("zooming", () => {
         expect(pinchScale(2, 100, 40)).toBe(1);
         expect(pinchScale(11, 100, 300)).toBe(12);
     });
+
+    test("by pinch from two touches on one spot keeps the scale", () => {
+        expect(pinchScale(3, 0, 0)).toBe(3);
+        expect(pinchScale(3, 0, 50)).toBe(3);
+    });
 });
 
 describe("panning", () => {
@@ -100,16 +105,26 @@ describe("panning", () => {
     });
 
     test("stops following", () => {
-        expect(panBy({ ...zoomed, following: true }, 1, 0, twenty, laptop).following).toBe(false);
+        expect(panBy({ ...zoomed, following: true }, 0, 1, twenty, laptop).following).toBe(false);
+    });
+
+    test("that moves nothing, on a world that fits, keeps following", () => {
+        const view = fitted(twenty, laptop, laptop, false);
+        expect(panBy(view, 6, 6, twenty, laptop)).toBe(view);
     });
 });
 
 describe("a change of area", () => {
     test("refits while following", () => {
+        // 600 wide fits only 1x, so a refit drops a step where keeping the middle would not.
         const view = fitted(twenty, laptop, laptop, false);
-        expect(resized(view, twenty, laptop, drawerOpen, drawerOpen, false)).toEqual(
-            fitted(twenty, drawerOpen, drawerOpen, false),
-        );
+        const narrower = { width: 600, height: 720 };
+        expect(resized(view, twenty, laptop, narrower, narrower, false)).toEqual({
+            scale: 1,
+            x: 140,
+            y: 200,
+            following: true,
+        });
     });
 
     test("keeps the scale and the middle point once the viewer has zoomed", () => {

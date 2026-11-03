@@ -26,7 +26,7 @@ describe("a world's side", () => {
     test("refuses anything but a whole number", () => {
         expect(readSide("7.5", "width")).toEqual({
             kind: "invalid",
-            reason: "the width is a whole number of tiles",
+            reason: "the width is a whole number from 5 to 25 tiles",
         });
         expect(readSide("ten", "height").kind).toBe("invalid");
     });

@@ -11,6 +11,11 @@ describe("a press", () => {
         expect(isClick(moved(pressed(10, 10), 14, 10))).toBe(false);
     });
 
+    test("measures the straight distance, so 3 across and 3 down is a drag", () => {
+        expect(isClick(moved(pressed(0, 0), 2, 2))).toBe(true);
+        expect(isClick(moved(pressed(0, 0), 3, 3))).toBe(false);
+    });
+
     test("stays a drag once it has been one, even back at its start", () => {
         expect(isClick(moved(moved(pressed(0, 0), 10, 0), 0, 0))).toBe(false);
     });

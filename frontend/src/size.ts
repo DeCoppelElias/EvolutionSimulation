@@ -9,7 +9,10 @@ export function readSide(text: string, name: "width" | "height"): SideInput {
     const trimmed = text.trim();
     if (trimmed === "") return { kind: "side", side: DEFAULT_SIDE };
     if (!/^\d+$/.test(trimmed)) {
-        return { kind: "invalid", reason: `the ${name} is a whole number of tiles` };
+        return {
+            kind: "invalid",
+            reason: `the ${name} is a whole number from ${MIN_SIDE} to ${MAX_SIDE} tiles`,
+        };
     }
     const side = Number(trimmed);
     if (side < MIN_SIDE || side > MAX_SIDE) {

@@ -67,11 +67,15 @@ export function zoomAt(view: View, scale: number, at: Point, tiles: Size, visibl
 }
 
 export function pinchScale(startScale: number, startDistance: number, distance: number): number {
+    if (startDistance <= 0) return startScale;
     return clampScale(Math.round((startScale * distance) / startDistance));
 }
 
+/** A drag that moves nothing leaves the view as it was, still following. */
 export function panBy(view: View, dx: number, dy: number, tiles: Size, visible: Size): View {
-    return placed({ ...view, x: view.x + dx, y: view.y + dy, following: false }, tiles, visible);
+    const moved = placed({ ...view, x: view.x + dx, y: view.y + dy }, tiles, visible);
+    if (moved.x === view.x && moved.y === view.y) return view;
+    return { ...moved, following: false };
 }
 
 /** Refits while following; otherwise keeps the scale and the point at the middle still. */

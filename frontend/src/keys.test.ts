@@ -8,8 +8,11 @@ describe("the keys", () => {
     test("map to the entry's actions", () => {
         expect(key(" ")).toBe("playPause");
         expect(key("i")).toBe("inspect");
+        expect(key("I")).toBe("inspect");
+        expect(key("h")).toBe("hand");
         expect(key("H")).toBe("hand");
         expect(key("p")).toBe("place");
+        expect(key("P")).toBe("place");
         expect(key("+")).toBe("zoomIn");
         expect(key("=")).toBe("zoomIn");
         expect(key("-")).toBe("zoomOut");
@@ -35,10 +38,16 @@ describe("the keys", () => {
     });
 
     test("typing means a field or editable text has focus", () => {
-        expect(isTyping("INPUT", false)).toBe(true);
-        expect(isTyping("SELECT", false)).toBe(true);
-        expect(isTyping("TEXTAREA", false)).toBe(true);
-        expect(isTyping("DIV", true)).toBe(true);
-        expect(isTyping("BUTTON", false)).toBe(false);
+        expect(isTyping("INPUT", "text", false)).toBe(true);
+        expect(isTyping("INPUT", "number", false)).toBe(true);
+        expect(isTyping("SELECT", "", false)).toBe(true);
+        expect(isTyping("TEXTAREA", "", false)).toBe(true);
+        expect(isTyping("DIV", "", true)).toBe(true);
+        expect(isTyping("BUTTON", "", false)).toBe(false);
+    });
+
+    test("a slider or a checkbox with focus is not typing, so Space still plays", () => {
+        expect(isTyping("INPUT", "range", false)).toBe(false);
+        expect(isTyping("INPUT", "checkbox", false)).toBe(false);
     });
 });
