@@ -311,6 +311,7 @@ button.ui.tool {
 }
 .grid canvas {
     display: block;
+    image-rendering: pixelated;
 }
 
 .drawer {

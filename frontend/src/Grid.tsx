@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { isClick, moved, pressed, type Press } from "./gesture";
+import { isClick, moved, pressed, wheeled, type Press } from "./gesture";
 import { messageOf } from "./messages";
 import { Scene } from "./scene";
 import type { GeneRanges, GridPosition, PlayState, WorldSnapshot } from "./types";
@@ -40,6 +40,7 @@ export function Grid(props: Props) {
     const press = useRef<Press | null>(null);
     const pinch = useRef<Pinch | null>(null);
     const [grabbing, setGrabbing] = useState(false);
+    const mouse = useRef<Point | null>(null);
 
     useEffect(() => {
         const element = host.current;
@@ -87,6 +88,7 @@ export function Grid(props: Props) {
                 made.setGenes(current.genes);
                 made.show(current.snapshot, current.play);
                 made.showSight(current.sight);
+                made.setBackground(current.background);
             },
             (error: unknown) => {
                 if (!cancelled) {
@@ -128,18 +130,28 @@ export function Grid(props: Props) {
     }, [background]);
 
     useEffect(() => {
-        if (ghost === null) scene.current?.setGhost(null, null);
-    }, [ghost]);
+        const at = mouse.current;
+        const shown =
+            ghost !== null && at !== null && view !== null
+                ? tileAt(view, { width, height }, at)
+                : null;
+        scene.current?.setGhost(shown, ghost);
+    }, [ghost, view, width, height]);
 
     useEffect(() => {
         const element = host.current;
         if (element === null) return;
+        let left = 0;
         const wheel = (event: WheelEvent) => {
+            if (event.ctrlKey) return;
             event.preventDefault();
+            const turned = wheeled(left, event.deltaY, event.deltaMode);
+            left = turned.left;
+            if (turned.steps === 0) return;
             const box = element.getBoundingClientRect();
             latest.current.props.onView({
                 type: "zoom",
-                steps: event.deltaY < 0 ? 1 : -1,
+                steps: turned.steps,
                 at: { x: event.clientX - box.left, y: event.clientY - box.top },
             });
         };
@@ -154,6 +166,7 @@ export function Grid(props: Props) {
     const tileUnder = (point: Point): GridPosition | null =>
         view === null ? null : tileAt(view, { width, height }, point);
     const hover = (event: PointerEvent<HTMLDivElement>, point: Point) => {
+        mouse.current = event.pointerType === "mouse" ? point : null;
         const shown = event.pointerType === "mouse" && ghost !== null ? tileUnder(point) : null;
         scene.current?.setGhost(shown, ghost);
     };
@@ -228,7 +241,11 @@ export function Grid(props: Props) {
             onPointerMove={move}
             onPointerUp={up}
             onPointerCancel={cancel}
-            onPointerLeave={() => scene.current?.setGhost(null, null)}
+            onLostPointerCapture={cancel}
+            onPointerLeave={() => {
+                mouse.current = null;
+                scene.current?.setGhost(null, null);
+            }}
             onContextMenu={(event) => {
                 if (ghost !== null || hand) event.preventDefault();
             }}

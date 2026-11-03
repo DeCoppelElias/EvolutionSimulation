@@ -38,6 +38,23 @@ export function TopBar(props: Props) {
     const { day, play, busy, scale, panel, theme, folded } = props;
     const [days, setDays] = useState(String(FAST_FORWARD_DEFAULT));
     const [menuOpen, setMenuOpen] = useState(false);
+    const menuWrap = useRef<HTMLSpanElement>(null);
+    if (!folded && menuOpen) setMenuOpen(false);
+    useEffect(() => {
+        if (!menuOpen) return;
+        const outside = (event: PointerEvent) => {
+            if (!menuWrap.current?.contains(event.target as Node)) setMenuOpen(false);
+        };
+        const escape = (event: KeyboardEvent) => {
+            if (event.key === "Escape") setMenuOpen(false);
+        };
+        window.addEventListener("pointerdown", outside);
+        window.addEventListener("keydown", escape, true);
+        return () => {
+            window.removeEventListener("pointerdown", outside);
+            window.removeEventListener("keydown", escape, true);
+        };
+    }, [menuOpen]);
     const measure = useRef<HTMLDivElement>(null);
     const onMeasure = useRef(props.onMeasure);
     useEffect(() => {
@@ -123,11 +140,21 @@ export function TopBar(props: Props) {
     );
     const zoom = (
         <span className="group" role="group" aria-label="Zoom">
-            <button className="ui icon" title="Zoom out (-)" onClick={() => props.onZoom(-1)}>
+            <button
+                className="ui icon"
+                title="Zoom out (-)"
+                aria-label="Zoom out"
+                onClick={() => props.onZoom(-1)}
+            >
                 −
             </button>
             <span className="scale">{scale ?? "–"}×</span>
-            <button className="ui icon" title="Zoom in (+)" onClick={() => props.onZoom(1)}>
+            <button
+                className="ui icon"
+                title="Zoom in (+)"
+                aria-label="Zoom in"
+                onClick={() => props.onZoom(1)}
+            >
                 +
             </button>
             <button className="ui" title="Fit the window (0)" onClick={props.onFit}>
@@ -178,7 +205,7 @@ export function TopBar(props: Props) {
                 <span className="spacer" />
                 {!folded && right}
                 {folded && (
-                    <span className="menu-wrap">
+                    <span className="menu-wrap" ref={menuWrap}>
                         <button
                             className="ui icon"
                             aria-label="Menu"

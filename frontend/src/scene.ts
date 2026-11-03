@@ -69,12 +69,14 @@ export class Scene {
             antialias: false,
             roundPixels: true,
         });
+        const surroundTexture = textureFrom(surround(SURROUND_TILES));
         const around = new TilingSprite({
-            texture: textureFrom(surround(SURROUND_TILES)),
+            texture: surroundTexture,
             width: area.width,
             height: area.height,
         });
         const scene = new Scene(app, around, width, height, onError);
+        scene.textures.set("surround", surroundTexture);
         scene.creatures.sortableChildren = true;
         scene.ghost.anchor.set(0.5, 1);
         scene.ghost.alpha = 0.5;

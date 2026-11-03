@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from "react";
 import type { Api } from "./api";
 import { Chart } from "./Chart";
 import { CreatureTable } from "./CreatureTable";
@@ -153,9 +153,11 @@ function Workbench(props: WorkbenchProps) {
             setBusy(false);
         }
     };
-    const playPause = () => void act(() => (play.playing ? api.pause(id) : api.play(id)));
+    const playPause = () => {
+        if (!busy) void act(() => (play.playing ? api.pause(id) : api.play(id)));
+    };
     const step = () => {
-        if (!play.playing) void act(() => api.step(id, 1));
+        if (!busy && !play.playing) void act(() => api.step(id, 1));
     };
 
     const clickTile = (at: { x: number; y: number }) => {
@@ -193,6 +195,7 @@ function Workbench(props: WorkbenchProps) {
             });
             if (action === null) return;
             event.preventDefault();
+            if (event.repeat && (action === "playPause" || action === "step")) return;
             const now = latest.current;
             switch (action) {
                 case "playPause":
@@ -246,6 +249,7 @@ function Workbench(props: WorkbenchProps) {
         setPicked(next);
         setPanel("inspector");
     };
+    const sight = useMemo(() => sightOf(snapshot, resolve(snapshot, picked)), [snapshot, picked]);
     const named = PANELS.find((entry) => entry.key === panel)?.name ?? "";
     const drawer = panel !== null && (
         <Drawer name={named} onClose={() => setPanel(null)}>
@@ -313,7 +317,7 @@ function Workbench(props: WorkbenchProps) {
                 <Grid
                     snapshot={snapshot}
                     play={play}
-                    sight={sightOf(snapshot, resolved)}
+                    sight={sight}
                     genes={genes}
                     view={viewport.view}
                     ghost={tools.tool === "place" ? placeAs : null}

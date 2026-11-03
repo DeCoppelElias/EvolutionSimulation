@@ -138,7 +138,12 @@ export function Picker({ api, theme, notice, onOpen, onError }: Props) {
                                     {Object.entries(world.population).length === 0
                                         ? "empty"
                                         : Object.entries(world.population).map(([name, count]) => (
-                                              <span key={name} className="count" title={name}>
+                                              <span
+                                                  key={name}
+                                                  className="count"
+                                                  title={name}
+                                                  aria-label={`${count} ${name}`}
+                                              >
                                                   <SpriteIcon spriteKey={name} />
                                                   {count}
                                               </span>

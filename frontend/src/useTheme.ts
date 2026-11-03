@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { THEME_KEY, flipped, shownTheme, storedTheme, type Theme } from "./theme";
 
 const DARK = "(prefers-color-scheme: dark)";
@@ -16,7 +16,7 @@ export function useTheme(): ThemeControl {
         return () => query.removeEventListener("change", changed);
     }, []);
     const shown = shownTheme(stored, systemDark);
-    useEffect(() => {
+    useLayoutEffect(() => {
         document.documentElement.dataset.theme = shown;
     }, [shown]);
     const flip = useCallback(() => {

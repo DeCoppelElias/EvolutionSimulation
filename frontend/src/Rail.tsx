@@ -82,7 +82,6 @@ export function Rail({ tools, species, placing, onChoose, onSpecies }: Props) {
                                 className="ui"
                                 role="option"
                                 aria-selected={name === placing}
-                                aria-pressed={name === placing}
                                 onClick={() => onSpecies(name)}
                             >
                                 <SpriteIcon spriteKey={name} />

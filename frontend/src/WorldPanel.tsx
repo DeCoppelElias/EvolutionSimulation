@@ -89,7 +89,10 @@ export function WorldPanel({ api, id, seed, species, theme, onError, onLeave }: 
                     className="btn"
                     disabled={busy || chosen === null}
                     onClick={() => {
-                        if (chosen !== null) {
+                        const many = Number(count);
+                        if (!Number.isInteger(many) || many < 1) {
+                            onError("spawn a whole number of creatures, at least 1");
+                        } else if (chosen !== null) {
                             void run(() =>
                                 api.command(id, {
                                     type: "spawn",
