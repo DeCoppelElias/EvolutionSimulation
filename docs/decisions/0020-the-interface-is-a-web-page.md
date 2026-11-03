@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted, 2026-10-01. Revised 2026-10-31.
+Accepted, 2026-10-01. Revised 2026-11-03.
 
 ## Context
 
@@ -97,6 +97,35 @@ it cannot judge how the page looks, so Elias would watch anyway. The upkeep
 outweighed saving one round trip, and it went back to
 `docs/ideas/browser-smoke-test.md`.
 
+The first page put every control in one row under the grid, with the
+inspector, the creature table and the chart in a column beside it. Three layouts
+were tried on a live page with the entry 14 art: Meadow, where the world fills
+the window under a floating bar and panels float over it; Console, with every
+control in one bar and panels in a sheet from the bottom; and Workbench, with a
+bar along the top, a tool rail and a drawer beside the world. Elias picked
+Workbench. It reads more like an application than a website, so two looks that
+leaned towards a site were drawn on it, one in warm paper and gold and one
+plain and neutral. Elias kept the prototype's sage, navy and pink.
+
+With one panel open at a time, letting only the bar's buttons switch panels put
+inspecting a creature two clicks away.
+
+A Fit that rounds the scale up fills the window's shorter side and hides a
+quarter of a 20 by 20 world on a laptop. A largest scale of 6 left a 5 by 5
+world small on a large screen. A pan that stops at the world's edge cuts a hop
+on an edge row.
+
+A phone could keep every control in a bar that wraps, with the rail beside the
+world and a panel over the whole screen. The bar wraps to three rows there,
+about 110 pixels, and an open panel hides the creature being inspected.
+
+Fonts loaded from Google's servers fail offline and send every visitor's
+address to Google, which a hosted page in the EU may not do without consent.
+System fonts lose the pixel face of the day counter.
+
+A theme button that cycles through system, light and dark makes the common
+switch take two clicks some of the time.
+
 ## Decision
 
 The core stays Java and depends only on `java.base`. Everything lives under
@@ -112,6 +141,31 @@ canvas inside one React component, drawn imperatively, and React renders the
 controls, the chart and the generated settings panel around it.
 `frontend-maven-plugin` downloads Node and builds the frontend into the jar's
 resources, so `./mvnw verify` builds and tests both halves.
+
+The page is a workbench. A bar along the top holds the way back to the worlds,
+the day, the play controls, fast-forward, zoom, the theme button and a button
+per panel. A rail on the left holds the tools: Inspect by default, a hand that
+pans, and Place, which places one creature of a chosen species per click. One
+panel at a time opens in a drawer 440 pixels wide that pushes the world aside,
+so nothing covers the world. The bar's buttons switch panels, and a click on a
+creature opens the Inspector. A notice shows in a strip under the bar. The
+picker and its create form, which takes a seed and a size from 5 to 25 tiles a
+side, share the theme.
+
+Fit is the largest whole scale that shows the whole world, or on a narrow
+window the smallest that fills its shorter side. Scales run from 1 to 12. The
+scale follows the window and the drawer until the viewer zooms or pans, and
+Fit hands it back. A drag pans with any tool, a press that moves under 4 pixels
+is a click, and a world that overflows its view pans to one tile past its edge.
+
+On a window too narrow for the bar, the controls used less fold into a menu,
+the tools move to a row along the bottom, and a panel opens as a sheet over the
+lower part of the world. Touch pans, pinches to zoom and taps.
+
+The page is light or dark, following the system until the theme button picks
+one, which the browser remembers, and the World panel can hand it back to the
+system. Only the page goes dark, and the world keeps its daylight colours. The
+fonts ship inside the jar.
 
 The browser animates between snapshots. It diffs consecutive snapshots by
 entity id, moves a moved entity between its two tiles, fades in an id that
@@ -178,6 +232,9 @@ skipped shows as its end state. A kill is read off two snapshots, as a wolf
 landing where a creature of another species stood and is gone. A death effect,
 or knowing which wolf killed which rabbit, wants events, which are an additive
 field on the report rather than a new channel.
+
+The page works with no internet, and a hosted page loads nothing from a third
+party. A phone is the one place where an open panel covers part of the world.
 
 Only visible tabs hold a connection, so the six-connection limit binds only
 with six pages on screen. A world left playing in a tab hidden for the idle
