@@ -1,7 +1,6 @@
 # World size on the page
 
-Status: planned, roadmap entry 15 adds width and height to the create form, 5
-to 25 a side, per [0020](../decisions/0020-the-interface-is-a-web-page.md).
+Status: built, [0020](../decisions/0020-the-interface-is-a-web-page.md).
 
 ## What it does
 

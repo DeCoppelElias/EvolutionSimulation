@@ -30,12 +30,19 @@ hot reload on port 5173, passing API calls to a `serve` on port 7070.
     java -jar target/HumanSimulation.jar serve
 
 `serve` opens the page in your browser. Pick a world or create one, with a seed
-or one drawn from the clock, and it starts with ten rabbits and seven grass on a
-20 by 20 grid. Play, pause, step, change the speed or fast-forward up to 10,000
-days. Pick a species beside the spawn count and spawn that many.
+or one drawn from the clock and a size from 5 to 25 tiles a side, 20 by 20 by
+default. It starts with ten rabbits and seven grass whatever its size, so a
+small world is a crowded one.
 
-The world is pixel art drawn at the largest whole scale the window allows, on a
-meadow with soft autumn patches of gold and straw. A
+A bar along the top holds the way back to the worlds, the day, play and pause,
+step, five speeds, fast-forward up to 10,000 days, zoom, the theme and a button
+for each panel. The world fills the rest. It opens at the largest whole scale
+that shows all of it, and it zooms in whole steps from 1 to 12 with the buttons,
+the mouse wheel at the cursor or two fingers. A drag pans it with any tool, as
+far as one tile past its edge, and Fit brings it back. Past the edge the meadow
+goes on, dimmed.
+
+The world is pixel art on a meadow with soft autumn patches of gold and straw. A
 rabbit crosses each move in one bound, higher the farther it goes. A wolf walks
 a move of one tile and leaps a longer one or a kill. Both blink while they
 stand. A move takes 260 ms plus 160 ms a tile, cut to fit the day, and at 10
@@ -46,26 +53,42 @@ genes, so relatives and creatures that evolved alike look alike: a rabbit's
 patch and its colour, and a wolf's coat, its darker saddle and paler muzzle or
 legs.
 
-A click on the grid inspects by default. Switch "Click a tile to" to spawn to
-drop one of the picked species there instead. Inspecting a tile with one thing
-on it selects it, and a tile with more lists them as they stood at the click.
-The selected creature's age, reserve, days to starve and genes follow it live,
-and its view range is tinted on the grid. Grass shows its food value and the
-days it has left. A table under the chart lists every creature, sorts by age or
-reserve, and updates when you press Refresh. A selected creature that dies says
-so in the panel. Worlds start without wolves, so spawn a few to
-watch them hunt. A chart beside the grid follows each species. The address
-holds the world's id, so a reload or a second tab shows the same world.
+The rail on the left holds three tools. Inspect, the default, selects what you
+click. The hand only pans. Place lists the species, shows the chosen one under
+the mouse, and puts one down with each click. Esc, a right click or Place's
+button again goes back to Inspect.
 
-Under the chart, the settings panel has a slider for every number the world
-reads, grouped as World, Grass, Rabbit and Wolf, each with its description:
-how much grass falls, how often and how long it lasts, what a rabbit or a wolf
-pays a day, how far it walks, what breeding costs, and what a rabbit is worth
-to the wolf that eats it. An edit takes effect at the next day and only in that
-world. An edited setting is marked in bold, its ↺ button puts the default back, and
-"Restore all" resets every one. A reset keeps the edits. The World group starts
-with a `mutation` checkbox. Untick it and children and new spawns become exact
-copies, so the world stops evolving.
+The panels open one at a time in a drawer beside the world. Clicking a creature
+opens the Inspector, with its age, reserve, days to starve and genes followed
+live and its view range tinted on the grid. A tile with more than one thing on
+it lists them to pick from, and grass shows its food value and the days it has
+left. Creatures is a table of every creature that sorts by age or reserve and
+updates when you press Refresh. Population charts each species. World shows the
+seed and holds spawning a number at random, a reset with an optional new seed,
+resetting the statistics and deleting the world. Worlds start without wolves, so
+spawn a few to watch them hunt. The address holds the world's id, so a reload or
+a second tab shows the same world.
+
+Settings has a slider for every number the world reads, grouped as World, Grass,
+Rabbit and Wolf, each with its description: how much grass falls, how often and
+how long it lasts, what a rabbit or a wolf pays a day, how far it walks, what
+breeding costs, and what a rabbit is worth to the wolf that eats it. An edit
+takes effect at the next day and only in that world. An edited setting is marked
+in bold, its ↺ button puts the default back, and "Restore all" resets every one.
+A reset keeps the edits. The World group starts with a `mutation` checkbox.
+Untick it and children and new spawns become exact copies, so the world stops
+evolving.
+
+Space plays and pauses, I, H and P pick a tool, plus and minus zoom, 0 fits, a
+full stop steps one day while paused, and Esc undoes one thing at a time. The
+page follows the system's light or dark setting until the sun and moon button
+picks one, and the World panel hands it back to the system. Only the page goes
+dark, and the world keeps its daylight.
+
+On a phone the bar keeps play, step, the speeds and the day and folds the rest
+into a menu, the tools sit along the bottom, and a panel opens as a sheet over
+the lower part of the world. `serve --host 0.0.0.0` lets a phone on the same
+network open the page at the computer's address.
 
 The art is drawn for the project and lives as text grids in `art/sprites.py`.
 

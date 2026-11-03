@@ -1,6 +1,6 @@
 # 15. Page layout and theme
 
-Status: not started.
+Status: done.
 
 The page gets a designed layout and theme around the world, light and dark, in
 the workbench shape picked from three layouts in entry 14's grill. The world
