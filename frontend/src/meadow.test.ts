@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { dithered, meadow, shadeAt } from "./meadow";
+import { dithered, meadow, shadeAt, surround } from "./meadow";
 import sheet from "./sprites.json";
+import { groundVariant } from "./tiles";
 
 /** The mean shade over each tile of a w by h world. */
 function tileMeans(w: number, h: number): number[][] {
@@ -53,15 +54,15 @@ describe("the meadow's pixels", () => {
         sheet.ground.shades.flatMap((shade) => Object.values(shade).map((hex) => rgb(hex).join())),
     );
 
-    test("cover the world and a tile of headroom above it", () => {
+    test("cover exactly the world", () => {
         const pixels = meadow(3, 2);
         expect(pixels.width).toBe(48);
-        expect(pixels.height).toBe(48);
+        expect(pixels.height).toBe(32);
     });
 
     test("in the world are all ground shades", () => {
         const pixels = meadow(3, 2);
-        for (let y = 16; y < 48; y++) {
+        for (let y = 0; y < 32; y++) {
             for (let x = 0; x < 48; x++) {
                 const at = (y * 48 + x) * 4;
                 expect(colours.has([...pixels.data.slice(at, at + 3)].join())).toBe(true);
@@ -69,11 +70,34 @@ describe("the meadow's pixels", () => {
         }
     });
 
-    test("in the headroom are darker than any ground shade", () => {
-        const pixels = meadow(3, 2);
+    test("around the world are a square of tiles darker than any ground shade", () => {
+        const pixels = surround(2);
+        expect(pixels.width).toBe(32);
+        expect(pixels.height).toBe(32);
         const darkest = Math.min(...[...colours].map((c) => Number(c.split(",")[1])));
-        for (let x = 0; x < 48; x++) {
-            expect(pixels.data[(5 * 48 + x) * 4 + 1]).toBeLessThan(darkest);
+        for (let at = 0; at < pixels.data.length; at += 4) {
+            expect(pixels.data[at + 1]).toBeLessThan(darkest);
         }
+    });
+
+    test("around the world have no patches, so the square repeats without a seam", () => {
+        const pixels = surround(4);
+        const tileOf = (tx: number, ty: number) => {
+            const rows: string[] = [];
+            for (let y = 0; y < 16; y++) {
+                const at = ((ty * 16 + y) * 64 + tx * 16) * 4;
+                rows.push([...pixels.data.slice(at, at + 64)].join());
+            }
+            return rows.join("|");
+        };
+        const byVariant = new Map<number, string>();
+        for (let ty = 0; ty < 4; ty++) {
+            for (let tx = 0; tx < 4; tx++) {
+                const seen = byVariant.get(groundVariant(tx, ty));
+                if (seen === undefined) byVariant.set(groundVariant(tx, ty), tileOf(tx, ty));
+                else expect(tileOf(tx, ty)).toBe(seen);
+            }
+        }
+        expect(byVariant.size).toBeGreaterThan(1);
     });
 });

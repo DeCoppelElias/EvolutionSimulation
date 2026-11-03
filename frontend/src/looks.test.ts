@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { lookOf } from "./looks";
+import { ghostLook, lookOf } from "./looks";
 import sheet from "./sprites.json";
 
 const drawn = (spriteKey: string, frame: string, creature = true, id = 4) => ({
@@ -41,5 +41,19 @@ describe("a look", () => {
     test("is missing for a species with no art", () => {
         expect(lookOf(drawn("deer", "stand"), null)).toBeNull();
         expect(lookOf(drawn("mushroom", "stand", false), null)).toBeNull();
+    });
+});
+
+describe("a ghost", () => {
+    test("is a creature's standing look, unmarked", () => {
+        expect(ghostLook("rabbit")?.key).toBe("rabbit/stand/plain");
+    });
+
+    test("for ground cover is its first tuft", () => {
+        expect(ghostLook("grass")?.key).toBe("grass/0");
+    });
+
+    test("for a species with no art is none", () => {
+        expect(ghostLook("dragon")).toBeNull();
     });
 });

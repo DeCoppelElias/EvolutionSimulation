@@ -41,3 +41,11 @@ export function lookOf(
         palette: chosen === null ? kind.palette : markedPalette(kind, chosen),
     };
 }
+
+/** What Place shows under the cursor, and the picker beside a count. */
+export function ghostLook(spriteKey: string): Look | null {
+    const shown = { id: 0, spriteKey, frame: "stand" };
+    return (
+        lookOf({ ...shown, creature: true }, null) ?? lookOf({ ...shown, creature: false }, null)
+    );
+}
