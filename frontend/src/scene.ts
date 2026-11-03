@@ -3,26 +3,32 @@ import {
     CanvasSource,
     Container,
     Graphics,
-    Rectangle,
     Sprite,
     Texture,
+    TilingSprite,
 } from "pixi.js";
 import { chip } from "./chip";
-import { lookOf } from "./looks";
+import { ghostLook, lookOf } from "./looks";
 import { marking, type Marking } from "./markings";
-import { meadow } from "./meadow";
+import { meadow, surround } from "./meadow";
 import { frameAt, settledMs, type Drawn, type Transition } from "./motion";
 import { advance, START, type Playback } from "./playback";
 import { rasterize, type Palette, type Pixels } from "./pixels";
-import { ART_TILE, HEADROOM } from "./scale";
-import sheet from "./sprites.json";
+import { ART_TILE } from "./scale";
 import { depth, stacks } from "./tiles";
 import type { GeneRanges, GridPosition, PlayState, WorldSnapshot } from "./types";
+import type { Size, View } from "./viewport";
 
 const CHIP_COLOURS = { o: "#1a1f2b", w: "#ffffff" };
+/** Tiles across the block of dimmed meadow repeated around the world. */
+const SURROUND_TILES = 16;
+const BORDER = { width: 1, color: "#1a1f2b", alpha: 0.45 };
 
-/** The PixiJS side of the grid, drawn imperatively in art pixels on a stage scaled by a whole number. */
+/** The PixiJS side of the grid: the world drawn in art pixels, placed and scaled by the view. */
 export class Scene {
+    private readonly world = new Container();
+    private readonly border = new Graphics();
+    private readonly ghost = new Sprite();
     private readonly cover = new Container();
     private readonly sightLayer = new Graphics();
     private readonly creatures = new Container();
@@ -37,9 +43,11 @@ export class Scene {
     private started = 0;
     /** The day whose chips wait for its moves to land. */
     private unsettled: WorldSnapshot | null = null;
+    private view: View = { scale: 1, x: 0, y: 0, following: true };
 
     private constructor(
         private readonly app: Application,
+        private readonly around: TilingSprite,
         private readonly width: number,
         private readonly height: number,
         private readonly onError: (message: string) => void,
@@ -49,44 +57,69 @@ export class Scene {
         host: HTMLElement,
         width: number,
         height: number,
-        scale: number,
-        onTileClick: (at: GridPosition) => void,
+        area: Size,
+        background: string,
         onError: (message: string) => void,
     ): Promise<Scene> {
         const app = new Application();
         await app.init({
-            width: width * ART_TILE * scale,
-            height: (height * ART_TILE + HEADROOM) * scale,
-            background: sheet.ground.palette.G,
+            width: area.width,
+            height: area.height,
+            background,
             antialias: false,
             roundPixels: true,
         });
-        const scene = new Scene(app, width, height, onError);
-        scene.creatures.sortableChildren = true;
-        app.stage.scale.set(scale);
-        const ground = new Sprite(scene.groundTexture());
-        ground.y = -HEADROOM;
-        const world = new Container();
-        world.y = HEADROOM;
-        world.addChild(ground, scene.cover, scene.sightLayer, scene.creatures, scene.chips);
-        app.stage.addChild(world);
-        world.eventMode = "static";
-        world.hitArea = new Rectangle(0, 0, width * ART_TILE, height * ART_TILE);
-        world.on("pointertap", (event) => {
-            const at = event.getLocalPosition(world);
-            onTileClick({ x: Math.floor(at.x / ART_TILE), y: Math.floor(at.y / ART_TILE) });
+        const around = new TilingSprite({
+            texture: textureFrom(surround(SURROUND_TILES)),
+            width: area.width,
+            height: area.height,
         });
+        const scene = new Scene(app, around, width, height, onError);
+        scene.creatures.sortableChildren = true;
+        scene.ghost.anchor.set(0.5, 1);
+        scene.ghost.alpha = 0.5;
+        scene.ghost.visible = false;
+        const ground = new Sprite(scene.groundTexture());
+        scene.world.addChild(
+            ground,
+            scene.cover,
+            scene.sightLayer,
+            scene.creatures,
+            scene.ghost,
+            scene.chips,
+        );
+        app.stage.addChild(around, scene.border, scene.world);
         app.ticker.add(() => scene.draw());
         host.appendChild(app.canvas);
         return scene;
     }
 
-    setScale(scale: number): void {
-        this.app.renderer.resize(
-            this.width * ART_TILE * scale,
-            (this.height * ART_TILE + HEADROOM) * scale,
-        );
-        this.app.stage.scale.set(scale);
+    setArea(area: Size): void {
+        this.app.renderer.resize(area.width, area.height);
+        this.around.width = area.width;
+        this.around.height = area.height;
+        this.layout();
+    }
+
+    setView(view: View): void {
+        this.view = view;
+        this.layout();
+    }
+
+    setBackground(colour: string): void {
+        this.app.renderer.background.color = colour;
+    }
+
+    /** Place's preview: the species standing on the hovered tile, half seen. */
+    setGhost(at: GridPosition | null, spriteKey: string | null): void {
+        const look = spriteKey === null ? null : ghostLook(spriteKey);
+        if (at === null || look === null) {
+            this.ghost.visible = false;
+            return;
+        }
+        this.ghost.texture = this.texture(look.key, look.grid, look.palette);
+        this.ghost.position.set(at.x * ART_TILE + ART_TILE / 2, (at.y + 1) * ART_TILE);
+        this.ghost.visible = true;
     }
 
     setGenes(genes: GeneRanges | null): void {
@@ -212,7 +245,21 @@ export class Scene {
         return texture;
     }
 
-    /** The meadow is drawn once, with its headroom. */
+    private layout(): void {
+        const { scale, x, y } = this.view;
+        this.world.position.set(x, y);
+        this.world.scale.set(scale);
+        this.around.tileScale.set(scale);
+        this.around.tilePosition.set(x, y);
+        const widthPx = this.width * ART_TILE * scale;
+        const heightPx = this.height * ART_TILE * scale;
+        this.border
+            .clear()
+            .rect(x - 0.5, y - 0.5, widthPx + 1, heightPx + 1)
+            .stroke(BORDER);
+    }
+
+    /** The meadow under the world is drawn once. */
     private groundTexture(): Texture {
         const texture = textureFrom(meadow(this.width, this.height));
         this.textures.set("ground", texture);

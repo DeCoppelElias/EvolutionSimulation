@@ -20,6 +20,9 @@ export function Inspector({ resolved, tile, onPick }: Props) {
                     ))}
                 </ul>
             )}
+            {resolved.kind === "none" && tile.length <= 1 && (
+                <p className="hint">Click a creature to inspect it.</p>
+            )}
             {resolved.kind === "gone" && <p>{goneMessage(resolved.picked)}</p>}
             {resolved.kind === "alive" && <Details entity={resolved.entity} />}
         </section>

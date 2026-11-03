@@ -22,8 +22,8 @@ export function Chart({ history }: Props) {
         const species = speciesKey === "" ? [] : speciesKey.split(",");
         const made = new uPlot(
             {
-                width: 480,
-                height: 240,
+                width: 408,
+                height: 220,
                 scales: { x: { time: false } },
                 series: [
                     { label: "day" },

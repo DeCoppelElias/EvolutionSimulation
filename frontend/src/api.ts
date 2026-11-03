@@ -39,12 +39,12 @@ export function createApi(fetchFn: typeof fetch = (input, init) => fetch(input, 
 
     return {
         listWorlds: () => json<WorldSummary[]>("GET", "/worlds"),
-        createWorld: (seed: number | null) =>
-            json<{ id: string; snapshot: WorldSnapshot }>(
-                "POST",
-                "/worlds",
-                seed === null ? {} : { seed },
-            ),
+        createWorld: (seed: number | null, size: { width: number; height: number }) =>
+            json<{ id: string; snapshot: WorldSnapshot }>("POST", "/worlds", {
+                ...(seed === null ? {} : { seed }),
+                width: size.width,
+                height: size.height,
+            }),
         deleteWorld: async (id: string) => {
             await request("DELETE", world(id));
         },
