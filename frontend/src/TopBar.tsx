@@ -19,7 +19,8 @@ type Props = {
     day: number;
     play: PlayState;
     busy: boolean;
-    scale: number | null;
+    /** The tile's size on screen, which is what the zoom reads as. */
+    zoom: string | null;
     panel: Panel | null;
     theme: ThemeControl;
     folded: boolean;
@@ -35,7 +36,7 @@ type Props = {
 };
 
 export function TopBar(props: Props) {
-    const { day, play, busy, scale, panel, theme, folded } = props;
+    const { day, play, busy, zoom, panel, theme, folded } = props;
     const [days, setDays] = useState(String(FAST_FORWARD_DEFAULT));
     const [menuOpen, setMenuOpen] = useState(false);
     const menuWrap = useRef<HTMLSpanElement>(null);
@@ -138,7 +139,7 @@ export function TopBar(props: Props) {
             </button>
         </span>
     );
-    const zoom = (
+    const zoomGroup = (
         <span className="group" role="group" aria-label="Zoom">
             <button
                 className="ui icon"
@@ -148,7 +149,7 @@ export function TopBar(props: Props) {
             >
                 −
             </button>
-            <span className="scale">{scale ?? "–"}×</span>
+            <span className="scale">{zoom ?? "–"}</span>
             <button
                 className="ui icon"
                 title="Zoom in (+)"
@@ -188,7 +189,7 @@ export function TopBar(props: Props) {
         ));
     const right = (
         <>
-            {zoom}
+            {zoomGroup}
             {themeButton}
             <span className="group" role="group" aria-label="Panels">
                 {panels(() => undefined)}
@@ -217,7 +218,7 @@ export function TopBar(props: Props) {
                         {menuOpen && (
                             <div className="menu">
                                 {back}
-                                {zoom}
+                                {zoomGroup}
                                 {panels(() => setMenuOpen(false))}
                                 {fastForward}
                                 {themeButton}

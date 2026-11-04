@@ -20,7 +20,7 @@ import { TopBar } from "./TopBar";
 import type { CensusRow, EntityView, GeneRanges, PlayState, WorldSnapshot } from "./types";
 import type { ThemeControl } from "./useTheme";
 import { useWorld } from "./useWorld";
-import { viewReducer, type Size } from "./viewport";
+import { maxScaleFor, tileLabel, viewReducer, type Size } from "./viewport";
 import { WorldPanel } from "./WorldPanel";
 
 const PAGE_COLOUR = { light: "#e8ede6", dark: "#12161e" };
@@ -100,6 +100,7 @@ function Workbench(props: WorkbenchProps) {
     const [windowWidth, setWindowWidth] = useState(() => window.innerWidth);
     const [barNeeds, setBarNeeds] = useState<number | null>(null);
     const [area, setArea] = useState<Size | null>(null);
+    const [ratio, setRatio] = useState(1);
     const [viewport, dispatch] = useReducer(viewReducer, {
         tiles: { width: snapshot.width, height: snapshot.height },
         frame: null,
@@ -138,10 +139,15 @@ function Workbench(props: WorkbenchProps) {
         if (area === null) return;
         dispatch({
             type: "frame",
-            frame: { area, visible: visibleArea(area, narrow, panelOpen), narrow },
+            frame: {
+                area,
+                visible: visibleArea(area, narrow, panelOpen),
+                narrow,
+                maxScale: maxScaleFor(ratio),
+            },
             keep: keep.current,
         });
-    }, [area, narrow, panelOpen]);
+    }, [area, ratio, narrow, panelOpen]);
 
     const act = async (action: () => Promise<unknown>) => {
         setBusy(true);
@@ -254,7 +260,7 @@ function Workbench(props: WorkbenchProps) {
     const drawer = panel !== null && (
         <Drawer name={named} onClose={() => setPanel(null)}>
             {panel === "inspector" && (
-                <Inspector resolved={resolved} tile={tile} onPick={setPicked} />
+                <Inspector resolved={resolved} tile={tile} genes={genes} onPick={setPicked} />
             )}
             {panel === "creatures" && (
                 <CreatureTable
@@ -288,7 +294,7 @@ function Workbench(props: WorkbenchProps) {
                 day={snapshot.day}
                 play={play}
                 busy={busy}
-                scale={viewport.view?.scale ?? null}
+                zoom={viewport.view === null ? null : tileLabel(viewport.view.scale, ratio)}
                 panel={panel}
                 theme={theme}
                 folded={folded}
@@ -323,7 +329,10 @@ function Workbench(props: WorkbenchProps) {
                     ghost={tools.tool === "place" ? placeAs : null}
                     hand={tools.tool === "hand"}
                     background={PAGE_COLOUR[theme.shown]}
-                    onArea={setArea}
+                    onArea={(measured, perCss) => {
+                        setArea(measured);
+                        setRatio(perCss);
+                    }}
                     onView={dispatch}
                     onTileClick={clickTile}
                     onRightClick={() => setTools(rightClicked())}

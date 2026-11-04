@@ -24,7 +24,7 @@ const CHIP_COLOURS = { o: "#1a1f2b", w: "#ffffff" };
 const SURROUND_TILES = 16;
 const BORDER = { width: 1, color: "#1a1f2b", alpha: 0.45 };
 
-/** The PixiJS side of the grid: the world drawn in art pixels, placed and scaled by the view. */
+/** The PixiJS side of the grid, in device pixels: the world drawn in art pixels, placed and scaled by the view. */
 export class Scene {
     private readonly world = new Container();
     private readonly border = new Graphics();
@@ -92,6 +92,9 @@ export class Scene {
         );
         app.stage.addChild(around, scene.border, scene.world);
         app.ticker.add(() => scene.draw());
+        // The buffer is in device pixels and the box in CSS pixels, so the two meet 1:1.
+        app.canvas.style.width = "100%";
+        app.canvas.style.height = "100%";
         host.appendChild(app.canvas);
         return scene;
     }

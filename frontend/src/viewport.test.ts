@@ -1,13 +1,16 @@
 import { describe, expect, test } from "vitest";
 import {
     clampAxis,
+    deviceSize,
     fitScale,
     fitted,
+    maxScaleFor,
     panBy,
     pinchScale,
     resized,
     revealed,
     tileAt,
+    tileLabel,
     viewReducer,
     zoomAt,
     type Viewport,
@@ -170,7 +173,7 @@ describe("a point on screen", () => {
 
 describe("the view's reducer", () => {
     const empty: Viewport = { tiles: twenty, frame: null, view: null };
-    const frame = { area: laptop, visible: laptop, narrow: false };
+    const frame = { area: laptop, visible: laptop, narrow: false, maxScale: 12 };
     const framed = viewReducer(empty, { type: "frame", frame, keep: null });
 
     test("fits on the first frame", () => {
@@ -188,12 +191,63 @@ describe("the view's reducer", () => {
 
     test("a new frame keeps the selected tile in view", () => {
         const zoomed = viewReducer(framed, { type: "zoom", steps: 1, at: { x: 1300, y: 360 } });
-        const opened = { area: drawerOpen, visible: drawerOpen, narrow: false };
+        const opened = { area: drawerOpen, visible: drawerOpen, narrow: false, maxScale: 12 };
         const after = viewReducer(zoomed, { type: "frame", frame: opened, keep: { x: 19, y: 10 } });
         expect(after.view?.x).toBe(878 - 960);
     });
 
     test("does nothing before the first frame", () => {
         expect(viewReducer(empty, { type: "zoom", steps: 1 })).toBe(empty);
+    });
+});
+
+describe("on a screen with more device pixels than CSS pixels", () => {
+    test("the top zoom stays 12 CSS pixels per art pixel, in whole device pixels", () => {
+        expect(maxScaleFor(1)).toBe(12);
+        expect(maxScaleFor(1.5)).toBe(18);
+        expect(maxScaleFor(1.25)).toBe(15);
+    });
+
+    test("Fit and zoom reach that top", () => {
+        const huge = { width: 6000, height: 4500 };
+        expect(fitScale({ width: 5, height: 5 }, huge, false, 18)).toBe(18);
+        const view = { scale: 17, x: 0, y: 0, following: false };
+        expect(zoomAt(view, 19, { x: 0, y: 0 }, twenty, huge, 18).scale).toBe(18);
+    });
+
+    test("the reducer zooms to the frame's own top", () => {
+        const big = { width: 6000, height: 4500 };
+        const empty: Viewport = { tiles: { width: 5, height: 5 }, frame: null, view: null };
+        const framed = viewReducer(empty, {
+            type: "frame",
+            frame: { area: big, visible: big, narrow: false, maxScale: 18 },
+            keep: null,
+        });
+        expect(framed.view?.scale).toBe(18);
+    });
+
+    test("the bar names the tile's size in CSS pixels", () => {
+        expect(tileLabel(2, 1)).toBe("32 px");
+        expect(tileLabel(3, 1.5)).toBe("32 px");
+        expect(tileLabel(1, 1.25)).toBe("13 px");
+    });
+});
+
+describe("the canvas in device pixels", () => {
+    const css = { width: 1318, height: 721 };
+
+    test("is the browser's exact count when it agrees with the ratio", () => {
+        expect(deviceSize(css, 1.25, { width: 1648, height: 901 })).toEqual({
+            width: 1648,
+            height: 901,
+        });
+    });
+
+    test("is worked out from the ratio when there is no exact count", () => {
+        expect(deviceSize(css, 1.25, null)).toEqual({ width: 1648, height: 901 });
+    });
+
+    test("is worked out from the ratio when the exact count is plainly in CSS pixels", () => {
+        expect(deviceSize(css, 1.25, css)).toEqual({ width: 1648, height: 901 });
     });
 });

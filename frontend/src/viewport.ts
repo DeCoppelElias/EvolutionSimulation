@@ -4,13 +4,13 @@ import type { GridPosition } from "./types";
 export const MIN_SCALE = 1;
 export const MAX_SCALE = 12;
 
-/** Pixels on screen, or tiles for a world. */
+/** Device pixels on screen, or tiles for a world. */
 export type Size = { width: number; height: number };
 export type Point = { x: number; y: number };
-/** The world's top-left corner in view pixels, and its whole scale. */
+/** The world's top-left corner in device pixels, and how many device pixels draw one art pixel. */
 export type View = { scale: number; x: number; y: number; following: boolean };
-/** The canvas, the part of it no sheet covers, and whether the window is narrow. */
-export type Frame = { area: Size; visible: Size; narrow: boolean };
+/** The canvas, the part of it no sheet covers, whether the window is narrow, and the top scale. */
+export type Frame = { area: Size; visible: Size; narrow: boolean; maxScale: number };
 export type Viewport = { tiles: Size; frame: Frame | null; view: View | null };
 export type ViewAction =
     | { type: "frame"; frame: Frame; keep: GridPosition | null }
@@ -19,15 +19,25 @@ export type ViewAction =
     | { type: "pan"; dx: number; dy: number }
     | { type: "fit" };
 
-const clampScale = (scale: number) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
+const clampScale = (scale: number, max: number) => Math.min(max, Math.max(MIN_SCALE, scale));
 const tilePx = (scale: number) => ART_TILE * scale;
 
+/** The top scale in device pixels, so the closest zoom looks the same on any screen. */
+export function maxScaleFor(ratio: number): number {
+    return Math.round(MAX_SCALE * ratio);
+}
+
+/** A tile's size in CSS pixels, which is what the zoom reads as. */
+export function tileLabel(scale: number, ratio: number): string {
+    return `${Math.round((ART_TILE * scale) / ratio)} px`;
+}
+
 /** On a narrow window the smallest scale that fills its shorter side, else the largest that shows the whole world. */
-export function fitScale(tiles: Size, area: Size, narrow: boolean): number {
+export function fitScale(tiles: Size, area: Size, narrow: boolean, max = MAX_SCALE): number {
     const across = area.width / (tiles.width * ART_TILE);
     const down = area.height / (tiles.height * ART_TILE);
-    if (narrow) return clampScale(Math.ceil(area.width <= area.height ? across : down));
-    return clampScale(Math.floor(Math.min(across, down)));
+    if (narrow) return clampScale(Math.ceil(area.width <= area.height ? across : down), max);
+    return clampScale(Math.floor(Math.min(across, down)), max);
 }
 
 /** An axis that fits is centred; one that overflows stops one tile past each edge. */
@@ -45,8 +55,14 @@ function placed(view: View, tiles: Size, visible: Size): View {
     };
 }
 
-export function fitted(tiles: Size, area: Size, visible: Size, narrow: boolean): View {
-    const scale = fitScale(tiles, area, narrow);
+export function fitted(
+    tiles: Size,
+    area: Size,
+    visible: Size,
+    narrow: boolean,
+    max = MAX_SCALE,
+): View {
+    const scale = fitScale(tiles, area, narrow, max);
     const tile = tilePx(scale);
     const centred = {
         scale,
@@ -57,8 +73,15 @@ export function fitted(tiles: Size, area: Size, visible: Size, narrow: boolean):
     return placed(centred, tiles, visible);
 }
 
-export function zoomAt(view: View, scale: number, at: Point, tiles: Size, visible: Size): View {
-    const next = clampScale(scale);
+export function zoomAt(
+    view: View,
+    scale: number,
+    at: Point,
+    tiles: Size,
+    visible: Size,
+    max = MAX_SCALE,
+): View {
+    const next = clampScale(scale, max);
     if (next === view.scale) return view;
     const artX = (at.x - view.x) / view.scale;
     const artY = (at.y - view.y) / view.scale;
@@ -66,9 +89,14 @@ export function zoomAt(view: View, scale: number, at: Point, tiles: Size, visibl
     return placed(moved, tiles, visible);
 }
 
-export function pinchScale(startScale: number, startDistance: number, distance: number): number {
+export function pinchScale(
+    startScale: number,
+    startDistance: number,
+    distance: number,
+    max = MAX_SCALE,
+): number {
     if (startDistance <= 0) return startScale;
-    return clampScale(Math.round((startScale * distance) / startDistance));
+    return clampScale(Math.round((startScale * distance) / startDistance), max);
 }
 
 /** A drag that moves nothing leaves the view as it was, still following. */
@@ -86,8 +114,9 @@ export function resized(
     area: Size,
     visible: Size,
     narrow: boolean,
+    max = MAX_SCALE,
 ): View {
-    if (view.following) return fitted(tiles, area, visible, narrow);
+    if (view.following) return fitted(tiles, area, visible, narrow, max);
     const shifted = {
         ...view,
         x: view.x + (visible.width - before.width) / 2,
@@ -124,25 +153,55 @@ export function viewReducer(state: Viewport, action: ViewAction): Viewport {
         const next = action.frame;
         const base =
             view === null || frame === null
-                ? fitted(tiles, next.area, next.visible, next.narrow)
-                : resized(view, tiles, frame.visible, next.area, next.visible, next.narrow);
+                ? fitted(tiles, next.area, next.visible, next.narrow, next.maxScale)
+                : resized(
+                      view,
+                      tiles,
+                      frame.visible,
+                      next.area,
+                      next.visible,
+                      next.narrow,
+                      next.maxScale,
+                  );
         const kept = action.keep === null ? base : revealed(base, action.keep, tiles, next.visible);
         return { tiles, frame: next, view: kept };
     }
     if (view === null || frame === null) return state;
-    const visible = frame.visible;
+    const { visible, maxScale } = frame;
     const middle = { x: visible.width / 2, y: visible.height / 2 };
     switch (action.type) {
         case "zoom":
             return {
                 ...state,
-                view: zoomAt(view, view.scale + action.steps, action.at ?? middle, tiles, visible),
+                view: zoomAt(
+                    view,
+                    view.scale + action.steps,
+                    action.at ?? middle,
+                    tiles,
+                    visible,
+                    maxScale,
+                ),
             };
         case "pinch":
-            return { ...state, view: zoomAt(view, action.scale, action.at, tiles, visible) };
+            return {
+                ...state,
+                view: zoomAt(view, action.scale, action.at, tiles, visible, maxScale),
+            };
         case "pan":
             return { ...state, view: panBy(view, action.dx, action.dy, tiles, visible) };
         case "fit":
-            return { ...state, view: fitted(tiles, frame.area, visible, frame.narrow) };
+            return { ...state, view: fitted(tiles, frame.area, visible, frame.narrow, maxScale) };
     }
+}
+
+/**
+ * The browser's exact device pixel count where it has one that fits the ratio, since rounding
+ * the CSS size can be a pixel off and stretch one column; otherwise the CSS size times the ratio.
+ */
+export function deviceSize(css: Size, ratio: number, exact: Size | null): Size {
+    const worked = { width: Math.round(css.width * ratio), height: Math.round(css.height * ratio) };
+    if (exact === null) return worked;
+    const agrees =
+        Math.abs(exact.width - worked.width) <= 1 && Math.abs(exact.height - worked.height) <= 1;
+    return agrees ? exact : worked;
 }

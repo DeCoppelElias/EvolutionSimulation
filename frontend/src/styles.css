@@ -134,7 +134,7 @@ h2 {
     margin-right: 4px;
 }
 .scale {
-    min-width: 3ch;
+    min-width: 5.5ch;
     text-align: center;
 }
 input.days {
@@ -351,8 +351,20 @@ button.ui.tool {
     padding: 12px 16px;
 }
 
+.portrait {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+.portrait-art {
+    padding: 4px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    image-rendering: pixelated;
+}
 .inspector h3 {
-    margin: 0 0 4px;
+    margin: 0;
     text-transform: capitalize;
 }
 .inspector h4 {

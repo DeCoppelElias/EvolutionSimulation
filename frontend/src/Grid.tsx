@@ -3,7 +3,16 @@ import { isClick, moved, pressed, wheeled, type Press } from "./gesture";
 import { messageOf } from "./messages";
 import { Scene } from "./scene";
 import type { GeneRanges, GridPosition, PlayState, WorldSnapshot } from "./types";
-import { pinchScale, tileAt, type Point, type Size, type View, type ViewAction } from "./viewport";
+import {
+    deviceSize,
+    maxScaleFor,
+    pinchScale,
+    tileAt,
+    type Point,
+    type Size,
+    type View,
+    type ViewAction,
+} from "./viewport";
 
 type Props = {
     snapshot: WorldSnapshot;
@@ -15,7 +24,8 @@ type Props = {
     ghost: string | null;
     hand: boolean;
     background: string;
-    onArea(area: Size): void;
+    /** The canvas in device pixels, and device pixels per CSS pixel. */
+    onArea(area: Size, ratio: number): void;
     onView(action: ViewAction): void;
     onTileClick(at: GridPosition): void;
     onRightClick(): void;
@@ -32,6 +42,7 @@ export function Grid(props: Props) {
     const host = useRef<HTMLDivElement>(null);
     const scene = useRef<Scene | null>(null);
     const [area, setArea] = useState<Size | null>(null);
+    const [ratio, setRatio] = useState(() => window.devicePixelRatio || 1);
     const latest = useRef({ props, area });
     useEffect(() => {
         latest.current = { props, area };
@@ -41,28 +52,45 @@ export function Grid(props: Props) {
     const pinch = useRef<Pinch | null>(null);
     const [grabbing, setGrabbing] = useState(false);
     const mouse = useRef<Point | null>(null);
+    /** A point in CSS pixels from the grid's corner, in the device pixels the view works in. */
+    const device = (point: Point): Point => {
+        const element = host.current;
+        const measured = latest.current.area;
+        const across = element?.getBoundingClientRect().width ?? 0;
+        const factor = measured === null || across === 0 ? 1 : measured.width / across;
+        return { x: point.x * factor, y: point.y * factor };
+    };
 
     useEffect(() => {
         const element = host.current;
         if (element === null) return;
+        // Device pixels as the browser lays them out, so the canvas is shown 1:1 and never stretched.
         const observer = new ResizeObserver(([entry]) => {
-            const next = {
-                width: Math.floor(entry.contentRect.width),
-                height: Math.floor(entry.contentRect.height),
-            };
+            const exact = entry.devicePixelContentBoxSize?.[0];
+            const scale = window.devicePixelRatio || 1;
+            const next = deviceSize(
+                { width: entry.contentRect.width, height: entry.contentRect.height },
+                scale,
+                exact === undefined ? null : { width: exact.inlineSize, height: exact.blockSize },
+            );
+            setRatio(scale);
             setArea((current) =>
                 current !== null && current.width === next.width && current.height === next.height
                     ? current
                     : next,
             );
         });
-        observer.observe(element);
+        try {
+            observer.observe(element, { box: "device-pixel-content-box" });
+        } catch {
+            observer.observe(element);
+        }
         return () => observer.disconnect();
     }, []);
 
     useEffect(() => {
-        if (area !== null) latest.current.props.onArea(area);
-    }, [area]);
+        if (area !== null) latest.current.props.onArea(area, ratio);
+    }, [area, ratio]);
 
     const measured = area !== null;
     useEffect(() => {
@@ -133,7 +161,7 @@ export function Grid(props: Props) {
         const at = mouse.current;
         const shown =
             ghost !== null && at !== null && view !== null
-                ? tileAt(view, { width, height }, at)
+                ? tileAt(view, { width, height }, device(at))
                 : null;
         scene.current?.setGhost(shown, ghost);
     }, [ghost, view, width, height]);
@@ -152,7 +180,7 @@ export function Grid(props: Props) {
             latest.current.props.onView({
                 type: "zoom",
                 steps: turned.steps,
-                at: { x: event.clientX - box.left, y: event.clientY - box.top },
+                at: device({ x: event.clientX - box.left, y: event.clientY - box.top }),
             });
         };
         element.addEventListener("wheel", wheel, { passive: false });
@@ -164,7 +192,7 @@ export function Grid(props: Props) {
         return { x: event.clientX - box.left, y: event.clientY - box.top };
     };
     const tileUnder = (point: Point): GridPosition | null =>
-        view === null ? null : tileAt(view, { width, height }, point);
+        view === null ? null : tileAt(view, { width, height }, device(point));
     const hover = (event: PointerEvent<HTMLDivElement>, point: Point) => {
         mouse.current = event.pointerType === "mouse" ? point : null;
         const shown = event.pointerType === "mouse" && ghost !== null ? tileUnder(point) : null;
@@ -196,8 +224,13 @@ export function Grid(props: Props) {
             const [a, b] = [...pointers.current.values()];
             props.onView({
                 type: "pinch",
-                scale: pinchScale(started.scale, started.distance, distance(a, b)),
-                at: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
+                scale: pinchScale(
+                    started.scale,
+                    started.distance,
+                    distance(a, b),
+                    maxScaleFor(ratio),
+                ),
+                at: device({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }),
             });
             return;
         }
@@ -205,7 +238,8 @@ export function Grid(props: Props) {
         press.current = moved(press.current, point.x, point.y);
         if (!isClick(press.current)) {
             setGrabbing(true);
-            props.onView({ type: "pan", dx: point.x - last.x, dy: point.y - last.y });
+            const step = device({ x: point.x - last.x, y: point.y - last.y });
+            props.onView({ type: "pan", dx: step.x, dy: step.y });
         }
     };
 
