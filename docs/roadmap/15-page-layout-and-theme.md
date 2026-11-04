@@ -19,7 +19,8 @@ under the bar, one at a time until closed, and pushes the world down.
 One panel at a time opens in a drawer 440 pixels wide that pushes the world
 aside. It shows its panel's name and a close button and has no tabs. The bar's
 buttons switch panels, and a click on a creature or on a row in the creature
-table opens the Inspector. A click on empty ground clears the selection and
+table opens the Inspector, which shows the creature standing in the markings
+its genes give it on the grid. A click on empty ground clears the selection and
 leaves the Inspector open.
 
 The rail on the left holds Inspect, selected by default, a hand that pans, and
@@ -29,7 +30,10 @@ and Esc, a right click or the tool's button again goes back to Inspect. This
 replaces entry 13's inspect and spawn toggle.
 
 Fit is the largest whole scale that shows the whole world, and on a narrow
-window the smallest that fills its shorter side. Scales run from 1 to 12, for
+window the smallest that fills its shorter side. A scale is a whole number of
+the screen's device pixels per art pixel, so the art stays crisp on a screen
+scaled to 125% or 150% and on a phone, and the bar reads the zoom as a tile's
+size in pixels. Scales run from 1 device pixel up to 12 CSS pixels' worth, for
 Fit and for zooming by hand. The world opens at Fit, centred, and follows
 changes to its area, such as the drawer opening, until the viewer zooms or
 pans. Then the scale stays and the point at the middle of the view stays put,
@@ -84,8 +88,8 @@ network with `serve --host 0.0.0.0`:
   message naming 5 to 25.
 - The bar, the rail and the drawer hold what this entry lists, and a panel never
   covers the world on a desktop.
-- Clicking a rabbit opens the Inspector over whatever panel was open and shows
-  its sight circle as entry 13 does, and clicking empty ground leaves the
+- Clicking a rabbit opens the Inspector over whatever panel was open, showing
+  the rabbit in its markings, and shows its sight circle as entry 13 does, and clicking empty ground leaves the
   Inspector open with nothing selected.
 - Place shows a ghost, places one rabbit a click, and Esc, a right click and
   its button each return to Inspect.

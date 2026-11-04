@@ -37,8 +37,9 @@ small world is a crowded one.
 A bar along the top holds the way back to the worlds, the day, play and pause,
 step, five speeds, fast-forward up to 10,000 days, zoom, the theme and a button
 for each panel. The world fills the rest. It opens at the largest whole scale
-that shows all of it, and it zooms in whole steps from 1 to 12 with the buttons,
-the mouse wheel at the cursor or two fingers. A drag pans it with any tool, as
+that shows all of it, and it zooms in whole steps of the screen's own pixels,
+so the art stays crisp at any display scaling, with the buttons, the mouse wheel
+at the cursor or two fingers. A drag pans it with any tool, as
 far as one tile past its edge, and Fit brings it back. Past the edge the meadow
 goes on, dimmed.
 
@@ -59,7 +60,8 @@ the mouse, and puts one down with each click. Esc, a right click or Place's
 button again goes back to Inspect.
 
 The panels open one at a time in a drawer beside the world. Clicking a creature
-opens the Inspector, with its age, reserve, days to starve and genes followed
+opens the Inspector, with a picture of it in its markings and its age,
+reserve, days to starve and genes followed
 live and its view range tinted on the grid. A tile with more than one thing on
 it lists them to pick from, and grass shows its food value and the days it has
 left. Creatures is a table of every creature that sorts by age or reserve and

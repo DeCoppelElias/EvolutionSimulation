@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted, 2026-10-31. Revised 2026-11-03.
+Accepted, 2026-10-31. Revised 2026-11-04.
 
 ## Context
 
@@ -62,8 +62,9 @@ is built. How a sprite is drawn and turned into the page's PNGs is in
 
 A tile is 16 by 16 art pixels. A creature may be larger than its tile and
 overhang it, as the wolf does at 24 by 18, and a click still goes by the tile
-underneath. The page scales the art by whole numbers only, so every art pixel
-stays square and sharp.
+underneath. The page scales the art by whole numbers of the screen's device
+pixels, so every art pixel stays square and sharp on a screen scaled to 125% or
+150% and on a phone.
 
 The style is flat colour with a navy ink outline one pixel wide. Animals are
 drawn side-on, and grass and ground are a bright top-down meadow, with ground

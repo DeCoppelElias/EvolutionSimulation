@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted, 2026-10-01. Revised 2026-11-03.
+Accepted, 2026-10-01. Revised 2026-11-04.
 
 ## Context
 
@@ -126,6 +126,12 @@ System fonts lose the pixel face of the day counter.
 A theme button that cycles through system, light and dark makes the common
 switch take two clicks some of the time.
 
+Whole scales counted in CSS pixels were the first zoom. A laptop scaled to 125%
+or 150% and a phone map each CSS pixel to 1.25, 1.5 or about 2.75 device
+pixels, and the browser stretched the canvas to fit, so at 150% a 1x art pixel
+came out alternately 1 and 2 device pixels wide. Elias saw the art look uneven
+at some zoom sizes.
+
 ## Decision
 
 The core stays Java and depends only on `java.base`. Everything lives under
@@ -153,7 +159,9 @@ picker and its create form, which takes a seed and a size from 5 to 25 tiles a
 side, share the theme.
 
 Fit is the largest whole scale that shows the whole world, or on a narrow
-window the smallest that fills its shorter side. Scales run from 1 to 12. The
+window the smallest that fills its shorter side. The canvas is drawn at the
+screen's device pixels and a scale counts device pixels per art pixel, from 1
+up to 12 CSS pixels' worth, and the bar reads it as a tile's size. The
 scale follows the window and the drawer until the viewer zooms or pans, and
 Fit hands it back. A drag pans with any tool, a press that moves under 4 pixels
 is a click, and a world that overflows its view pans to one tile past its edge.
