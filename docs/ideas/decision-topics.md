@@ -1,6 +1,7 @@
 # Decision topics
 
-Status: idea.
+Status: built, [workflow](../adr/workflow.md). The limit on topics was left
+out.
 
 ## What it does
 
@@ -12,39 +13,7 @@ or goes where the tests already show the choice. What passes is cut to the
 decision, the alternatives worth remembering and the costs that are not
 obvious.
 
-A first grouping, to be settled when the idea is promoted:
-
-- how the work is organised:
-  [0001](../decisions/0001-documentation-splits-into-five-artifacts.md),
-  [0002](../decisions/0002-replace-the-model-layer-in-place.md),
-  [0019](../decisions/0019-workflows-are-skills-and-invariants-are-scripts.md);
-- build and test standards:
-  [0012](../decisions/0012-tests-target-brains-without-a-world.md),
-  [0022](../decisions/0022-warnings-fail-the-build-and-nothing-is-null.md);
-- the world, its entities, terrain and space:
-  [0003](../decisions/0003-entities-carry-components.md),
-  [0009](../decisions/0009-terrain-is-entities-plus-tile-fields.md),
-  [0011](../decisions/0011-traversal-goes-through-queries.md),
-  [0015](../decisions/0015-geometry-lives-in-the-grid.md),
-  [0024](../decisions/0024-a-part-can-end-its-carrier.md);
-- the day:
-  [0004](../decisions/0004-creatures-return-intents.md),
-  [0005](../decisions/0005-a-day-is-one-method.md),
-  [0008](../decisions/0008-brains-decide-systems-apply.md),
-  [0010](../decisions/0010-runs-replay-exactly-from-a-seed.md),
-  [0014](../decisions/0014-resolve-order-comes-from-a-speed-gene.md),
-  [0016](../decisions/0016-feeding-takes-the-tile.md);
-- brains and perception:
-  [0013](../decisions/0013-perception-is-one-type.md),
-  [0018](../decisions/0018-brain-computation-model-and-warm-starting.md),
-  [0023](../decisions/0023-creatures-score-the-tiles-they-can-reach.md);
-- genes and settings:
-  [0006](../decisions/0006-genomes-are-a-named-layout-of-gene-shapes.md),
-  [0017](../decisions/0017-every-number-is-a-setting-or-a-gene.md);
-- the boundary, its state, interface and agents:
-  [0007](../decisions/0007-state-leaves-as-a-snapshot-commands-go-in.md),
-  [0020](../decisions/0020-the-interface-is-a-web-page.md),
-  [0021](../decisions/0021-agents-drive-worlds-over-http-and-run.md).
+The grouping that was built is the index in `docs/adr/README.md`.
 
 ## Why it is interesting
 

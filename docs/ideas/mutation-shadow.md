@@ -23,9 +23,9 @@ a neutral shadow is how artificial life separates adaptation from drift:
 Bedau's neutral shadow models and the random-selection runs in Yaeger's
 Polyworld both keep everything except selection.
 
-It matters less once evolution starts mid-range. Entry 9 made `grassPull` and
+It matters less once evolution starts mid-range. [Rabbit learns](../roadmap/rabbit-learns.md) made `grassPull` and
 `hungerDrive` signed, per
-[0023](../decisions/0023-creatures-score-the-tiles-they-can-reach.md), so its
+[brains](../adr/brains.md), so its
 poor starting genome has no floor to climb off and its gate needs no shadow. A
 start near a bound, such as `whim` near its floor or a gene pinned by a later
 species, would need one again.

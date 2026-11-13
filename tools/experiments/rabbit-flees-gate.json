@@ -1,5 +1,5 @@
 {
-  "about": "Entry 12's gate: rabbits evolved beside wolves against rabbits evolved without them, tested beside wolves drawn from the evolving arm. Expectations are in docs/roadmap/12-fleeing.md.",
+  "about": "The fleeing gate: rabbits evolved beside wolves against rabbits evolved without them, tested beside wolves drawn from the evolving arm. Expectations are in docs/roadmap/fleeing.md.",
   "seeds": "1-30",
   "species": "rabbit",
   "world": ["--width", "80", "--height", "80", "--set", "world.grassPerDrop=75", "--set", "world.grassDropInterval=2"],

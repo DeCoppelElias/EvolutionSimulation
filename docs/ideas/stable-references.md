@@ -1,6 +1,6 @@
 # Stable references
 
-Status: idea.
+Status: built, [workflow](../adr/workflow.md).
 
 ## What it does
 
@@ -17,12 +17,6 @@ the files after it and rewrites every reference to them. A restated decision
 goes wrong the day the decision changes, and nothing notices, since the link
 still resolves. A quoted count is stale on the next commit.
 
-The rejected alternative in
-[0001](../decisions/0001-documentation-splits-into-five-artifacts.md) was a
-permanent id, because it stopped saying when an entry comes. A slug never
-claims to, so a reader takes the order from the list, which is where it is
-kept anyway.
-
 To keep it that way, `tools/docs-check.py` fails on an `entry N` reference or a
 bare decision number in `docs/`, and the auditing-docs skill gains a pair to
 read: whether an idea or entry repeats what a topic it links says.
@@ -33,7 +27,7 @@ The move onto the [shared workflow kit](shared-workflow-kit.md) carries this
 out.
 
 The roadmap files and their README, the numbering rule in
-[0001](../decisions/0001-documentation-splits-into-five-artifacts.md), every
+[workflow](../adr/workflow.md), every
 idea and entry that cites a number or restates a decision,
 `tools/docs-check.py` and its tests, and the promoting-ideas and auditing-docs
 skills with their `evals/` scenarios. The `planned` status line format in the

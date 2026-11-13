@@ -17,7 +17,7 @@ sprite drawn on the wrong tile or a glide that never ends passes both. Today a
 person watching the page is the only check.
 
 It was a roadmap entry and was dropped before it started, per
-[0020](../decisions/0020-the-interface-is-a-web-page.md). Elias watches every
+[interface and art](../adr/interface-and-art.md). Elias watches every
 change to the page anyway, since the check cannot judge how it looks, and its
 script would need updating with each later entry that changes the controls.
 It becomes worth it if the page grows past what one person wants to watch, or
@@ -25,15 +25,15 @@ once hosting puts it in front of strangers.
 
 ## What it would touch
 
-A project skill in `.claude/skills/` with an `evals/` scenario, and a
+An `AGENTS.md` line, or a project skill if a fresh agent gets it wrong
+without one, and a
 Playwright script in `tools/page-check/` with its own pinned `package.json`,
 kept out of the frontend's so the build never installs it. The script would
 start `serve --no-browser --port 0`, create a seeded world, spawn at known
 tiles, and screenshot before and after play. Tiles are a fixed 32 pixels, so it
 can check mechanically that each tile the snapshot fills is not bare ground,
 without stored images. It can use an installed Edge or Chrome, or download
-Chromium once into the user cache. `0019`'s count of workflow skills and
-`AGENTS.md` would list it.
+Chromium once into the user cache. `AGENTS.md` would list it.
 
 ## Open questions
 

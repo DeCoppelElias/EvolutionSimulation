@@ -1,6 +1,6 @@
 # Ancestor competition
 
-Status: built, [0021](../decisions/0021-agents-drive-worlds-over-http-and-run.md).
+Status: built, [experiments and training](../adr/experiments-and-training.md).
 
 ## What it does
 
@@ -28,7 +28,7 @@ speed and view raised at a cost the whole population pays. The arm with each
 group alone catches that: a group that wins head to head but holds a smaller
 population alone is better at fighting, not at living.
 
-Entry 7's `mutation-ramp` preset compares worlds where everything mutates
+[Comparing runs](../roadmap/comparing-runs.md)'s `mutation-ramp` preset compares worlds where everything mutates
 against worlds where nothing does, so turning mutation off removes variation
 and the cost of bad mutations at once. Here mutation is off in both groups, and only where their
 genomes came from differs.
@@ -42,16 +42,16 @@ rabbit descends from, and no lineage tag is needed. A script of its own,
 `tools/ancestor_competition.py`, that borrows `tools/compare.py`'s runner and
 reports counts of seeds rather than the
 [comparison statistics](comparison-statistics.md), per
-[0021](../decisions/0021-agents-drive-worlds-over-http-and-run.md).
+[experiments and training](../adr/experiments-and-training.md).
 
 ## Open questions
 
-Roadmap entry 9 settles one world, group size and ratio for its gate: the
+[Rabbit learns](../roadmap/rabbit-learns.md) settles one world, group size and ratio for its gate: the
 world the genomes evolved in with more food, so the original genome can live
 alone, ten of each group, one to one. Whether the result
 depends on the starting ratio is still open.
 
-Roadmap entry 12 settles one way to measure a lesson that a second species
+[Fleeing](../roadmap/fleeing.md) settles one way to measure a lesson that a second species
 teaches: rabbits evolved with co-evolving wolves against rabbits evolved without
 them, tested beside four wolves drawn from the evolving arm's last day. Both
 groups meet the same wolves, so the comparison between them stays fair, though
@@ -61,7 +61,7 @@ were tried first, as a fixed opponent that sidesteps the Red Queen problem
 improving. Both rabbit arms evolve to about twice the baseline wolf's speed, so
 those wolves starved within weeks and the test became a contest for grass, which
 the control won. With sampled wolves the share came out near a coin flip,
-since fleeing costs grazing, so entry 12's mark reads the drift of the gene the
+since fleeing costs grazing, so [fleeing](../roadmap/fleeing.md)'s mark reads the drift of the gene the
 lesson is expected in, and the head-to-head is reported without one. Whether a
 control fed down to the evolving arm's density would make the head-to-head
 readable is open. Measuring the wolves themselves still needs

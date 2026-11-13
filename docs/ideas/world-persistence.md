@@ -17,9 +17,9 @@ most for a world left to evolve for days.
 ## What it would touch
 
 The web adapter writes and reads the files. Replay already exists, per
-[0010](../decisions/0010-runs-replay-exactly-from-a-seed.md), so the domain
+[replay](../adr/replay.md), so the domain
 changes nothing. It does turn the command log into a save format, which
-[0007](../decisions/0007-state-leaves-as-a-snapshot-commands-go-in.md) resists,
+[commands and snapshots](../adr/commands-and-snapshots.md) resists,
 so it needs that entry revised first.
 
 ## Open questions

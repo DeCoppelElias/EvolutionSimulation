@@ -1,4 +1,8 @@
 {
+  "extraKnownMarketplaces": {
+    "groundwork": { "source": { "source": "github", "repo": "DeCoppelElias/groundwork" } }
+  },
+  "enabledPlugins": { "groundwork@groundwork": true },
   "permissions": {
     "allow": [
       "Bash(javac:*)",

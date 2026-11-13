@@ -15,7 +15,7 @@ interface Component {
     /** What creatures in range see it as; empty when its seen view is. */
     List<Feature> features();
 
-    /** The values a person watching sees, by name, per 0007. */
+    /** The values a person watching sees, by name, per docs/adr/commands-and-snapshots.md. */
     Map<String, Double> shown();
 
     /** One day passes for this part alone. Returns the cause its carrier ends with, or nothing. */

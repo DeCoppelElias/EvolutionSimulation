@@ -31,9 +31,15 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Check the docs agree with each other, and test the tools
+      - name: Check the docs with groundwork's checker at a pinned version
         shell: bash
-        run: python tools/docs-check.py && python tools/test_docs_check.py && python tools/test_compare.py && python tools/test_ancestor_competition.py
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/DeCoppelElias/groundwork/v0.1.0/scripts/docs_check.py -o "$RUNNER_TEMP/docs_check.py"
+          python "$RUNNER_TEMP/docs_check.py"
+
+      - name: Test the tools
+        shell: bash
+        run: python tools/test_compare.py && python tools/test_ancestor_competition.py
 
       - name: Build, check formatting and run tests
         # bash on both runners, so ./mvnw is the same command everywhere.

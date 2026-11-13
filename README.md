@@ -107,7 +107,7 @@ canvas, and the art lives as text grids in `art/sprites.py`.
 - `DESIGN.md` describes what the world is meant to become.
 - `docs/roadmap/` says how far it has got. Next come small effects for births,
   deaths and kills, then a hosted version anyone can open.
-- `docs/decisions/` says why it is shaped the way it is.
+- `docs/adr/` says why it is shaped the way it is.
 
 The project started in 2022 as HumanSimulation, a Swing app of humans looking
 for food. That version is kept on the `v1.0-original-2022` tag.

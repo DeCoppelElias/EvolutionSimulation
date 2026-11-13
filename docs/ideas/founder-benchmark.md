@@ -34,7 +34,7 @@ Spawning from an exported genome, which is the
 `tools/experiments/`, and [comparison statistics](comparison-statistics.md)
 for reading the scores. Whether a network brain's warm start matches the
 scoring brain is checked by handing both the same perceptions, per
-[0012](../decisions/0012-tests-target-brains-without-a-world.md), not by this
+[testing](../adr/testing.md), not by this
 benchmark.
 
 ## Open questions

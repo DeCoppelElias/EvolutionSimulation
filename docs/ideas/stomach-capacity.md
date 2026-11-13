@@ -19,7 +19,7 @@ it is and come back.
 The metabolism component gains a limit, and feeding stops taking
 everything. If eating becomes selective rather than capped, it needs either a
 gene or a new intent, and an intent runs into the one action a day rule from
-[0004](../decisions/0004-creatures-return-intents.md).
+[actions](../adr/actions.md).
 
 ## Open questions
 

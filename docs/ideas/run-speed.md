@@ -11,13 +11,13 @@ world finishes sooner and prints the same lines.
 
 A 40×40 predator run of 2000 days takes about 13 seconds, about 7 ms a day for
 around a hundred animals, and an 80×80 run of 1000 days about 33 seconds. Every
-probe, gate and tuning budget is a multiple of that, and entry 12's tuning is
+probe, gate and tuning budget is a multiple of that, and [fleeing](../roadmap/fleeing.md)'s tuning is
 held to runs of under 30 minutes on half the cores of the machine it runs on.
 
 Two costs are visible without a profiler. `World.advance()` builds a whole-world
 snapshot every day, every tile and a copy of every genome, and `run` reads it
 only on export days. A perception is allocated per creature per day, which
-[0013](../decisions/0013-perception-is-one-type.md) already names as internal
+[perception](../adr/perception.md) already names as internal
 to the builder if it ever matters.
 
 ## What it would touch

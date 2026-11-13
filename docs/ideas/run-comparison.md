@@ -1,6 +1,6 @@
 # Run comparison
 
-Status: built, [0021](../decisions/0021-agents-drive-worlds-over-http-and-run.md).
+Status: built, [experiments and training](../adr/experiments-and-training.md).
 
 ## What it does
 
@@ -15,12 +15,12 @@ An agent testing a new feature or brain has to answer "did this help?", and
 today it would write that comparison from scratch every time, a little
 differently each time. One shared comparison makes results from different
 sessions comparable, and it is the measuring stick the selection gate in
-roadmap entry 9 needs anyway.
+[rabbit learns](../roadmap/rabbit-learns.md) needs anyway.
 
 ## What it would touch
 
 A mode of the `run` command from
-[0021](../decisions/0021-agents-drive-worlds-over-http-and-run.md), or a small
+[experiments and training](../adr/experiments-and-training.md), or a small
 script in `tools/` reading its output. Nothing in the domain.
 
 ## Open questions

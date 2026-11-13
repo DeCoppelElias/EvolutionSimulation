@@ -5,7 +5,7 @@ Status: idea.
 ## What it does
 
 Runs a species that never learns beside the rabbits. It uses the scoring brain
-of [0023](../decisions/0023-creatures-score-the-tiles-they-can-reach.md) with
+of [brains](../adr/brains.md) with
 every pull gene fixed at zero and every gene's
 mutation size at zero, so it picks among its moves evenly and stays that way
 across generations.
@@ -20,7 +20,7 @@ walk, and the deleted `RandomBrain` stays deleted.
 ## What it would touch
 
 A new species beside `Rabbit`, with its own name and sprite. It only means
-something once breeding and mutation exist, from roadmap entry 6.
+something once breeding and mutation exist, from [breeding and settings](../roadmap/breeding-and-settings.md).
 
 ## Open questions
 

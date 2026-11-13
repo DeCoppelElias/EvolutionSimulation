@@ -10,15 +10,15 @@ show the result in an artifact, and never edit a PNG by hand.
 
 ## Why it is interesting
 
-Roadmap entry 14 drew the rabbit, the wolf and the grass across several
+[Art and motion](../roadmap/art-and-motion.md) drew the rabbit, the wolf and the grass across several
 sessions, and the steps lived in a handoff file. Humans and any later species go
 through the same steps. The decision log records what the art looks like and
 why. How to produce it is a procedure, and a procedure belongs in a skill.
 
 ## What it would touch
 
-A new folder under `.claude/skills/` with its `SKILL.md` and an `evals/`
-scenario, and a line in `AGENTS.md` under Workflows.
+A line in `AGENTS.md` first, and a project skill only if a fresh agent still
+draws sprites wrong with it.
 
 ## Open questions
 

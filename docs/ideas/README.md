@@ -1,16 +1,14 @@
 # Ideas
 
-One file per idea that is wanted and not decided. Each has a status line, then
-what it does, why it is interesting, what it would touch, and what is still
-open. Named rather than numbered, because ideas get promoted and dropped and
-their order means nothing.
+One file per idea that is wanted and not decided, named by the idea. Each has
+a status line, then the sections What it does, Why it is interesting, What it
+would touch, and Open questions. Nothing here is committed to.
 
-This is not a roadmap. Nothing here is committed to.
+The status is `idea`. Once an idea is adopted it reads `planned`, with a link
+to its roadmap entry, and once built it reads `built`, with a link to the
+decision that settled it. The file stays either way.
 
-An idea that gets adopted is settled in `docs/decisions/`, in the entry for its
-topic or in a new one if the topic is new, and goes onto `docs/roadmap/`. It
-keeps its file, marked `planned`, and once built its status line links the entry
-that settled it.
+Each idea gets one line below, a link and a few words.
 
 - [Aggression at contested food](aggression-at-contested-food.md) the 2022 food
   contest, left out of the rebuild on purpose.
@@ -60,10 +58,10 @@ that settled it.
   domain types and decision numbers in comments.
 - [Kin recognition](kin-recognition.md) a creature telling its own species
   from others that show the same features.
-- [Measuring test quality](measuring-test-quality.md) coverage reports, a
-  coverage threshold, or mutation testing.
 - [Lifespan](lifespan.md) a part that ends its carrier after some days, so
   grass withers and rabbits age.
+- [Measuring test quality](measuring-test-quality.md) coverage reports, a
+  coverage threshold, or mutation testing.
 - [MCP server](mcp-server.md) an agent drives a world through typed tools
   over stdio.
 - [Mutation shadow](mutation-shadow.md) genomes changed by mutation alone,
@@ -96,6 +94,8 @@ that settled it.
   docs that link decisions rather than restate them, and no quoted counts.
 - [Stomach capacity](stomach-capacity.md) a limit on what a creature can hold,
   which makes how much to eat a decision.
+- [Training interface](training-interface.md) a fast way for a model to train
+  a brain by gradient descent or reinforcement learning, and load the result.
 - [World persistence](world-persistence.md) a server's worlds surviving a
   restart.
 - [World size on the page](world-size-on-the-page.md) choosing a world's width

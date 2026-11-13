@@ -1,44 +1,28 @@
 # Roadmap
 
-The order the project is being rebuilt in. `DESIGN.md` describes the target
-architecture; this says which parts of it exist yet and what's next. Status
-lives on each entry rather than as a separate description of what the code
-contains, which would duplicate the code and go stale the same way. Read
-`docs/decisions/` alongside this: a decision explains why something is shaped
-the way it is, an entry says whether it exists yet.
-
-Each entry is one file in this folder, and its number is its place in the
-build order, so the list below runs in ascending number. A finished entry keeps
-its number for good. Adding, moving or dropping an entry renumbers the
-unfinished entries after it, renaming their files and every "entry N"
-reference to them, per
-[0001](../decisions/0001-documentation-splits-into-five-artifacts.md). Entry 4
-was dropped before that rule, and its hole stays. An entry's "Depends on" line
-says what has to come before it. A dropped entry's idea goes back to
-`docs/ideas/`.
-
-Each entry is built on its own branch and merged into `master` when it is
-finished, per [0002](../decisions/0002-replace-the-model-layer-in-place.md), so
-`master` holds the last finished entry. The 2022 application stays on the
-`v1.0-original-2022` tag.
+The committed build order. Each entry is one file named by its slug, with a
+status line reading `not started`, `in progress` or `done`, what it builds,
+what it depends on and the decisions it is bound by, linked rather than
+restated. The order lives only in the list below. Inserting an entry is a new
+file and one new line here, and nothing is ever renumbered.
 
 Each entry lists the 2022 features it brings back and the regression rules it
 carries, as acceptance lines. A 2022 feature left out on purpose is in
-`docs/ideas/`.
+`docs/ideas/`. The 2022 application stays on the `v1.0-original-2022` tag.
 
-- [1. Minimal loop](01-minimal-loop.md)
-- [2. Serving worlds over HTTP](02-serving-worlds-over-http.md)
-- [3. Watching in a browser](03-watching-in-a-browser.md)
-- [5. Eating and starving](05-eating-and-starving.md)
-- [6. Breeding and settings](06-breeding-and-settings.md)
-- [7. Comparing runs](07-comparing-runs.md)
-- [8. Entity lifespan](08-entity-lifespan.md)
-- [9. Rabbit learns](09-rabbit-learns.md)
-- [10. Diet](10-diet.md)
-- [11. Predator](11-predator.md)
-- [12. Fleeing](12-fleeing.md)
-- [13. Inspecting creatures](13-inspecting-creatures.md)
-- [14. Art and motion](14-art-and-motion.md)
-- [15. Page layout and theme](15-page-layout-and-theme.md)
-- [16. Events and effects](16-events-and-effects.md)
-- [17. Hosting](17-hosting.md)
+- [Minimal loop](minimal-loop.md)
+- [Serving worlds over HTTP](serving-worlds-over-http.md)
+- [Watching in a browser](watching-in-a-browser.md)
+- [Eating and starving](eating-and-starving.md)
+- [Breeding and settings](breeding-and-settings.md)
+- [Comparing runs](comparing-runs.md)
+- [Entity lifespan](entity-lifespan.md)
+- [Rabbit learns](rabbit-learns.md)
+- [Diet](diet.md)
+- [Predator](predator.md)
+- [Fleeing](fleeing.md)
+- [Inspecting creatures](inspecting-creatures.md)
+- [Art and motion](art-and-motion.md)
+- [Page layout and theme](page-layout-and-theme.md)
+- [Events and effects](events-and-effects.md)
+- [Hosting](hosting.md)

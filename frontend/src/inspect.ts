@@ -6,7 +6,7 @@ export type Resolved =
     | { kind: "alive"; entity: EntityView; at: GridPosition }
     | { kind: "gone"; picked: Picked };
 
-/** Ids never repeat within a run, so a picked id that is missing has died, per 0009. */
+/** Ids never repeat within a run, so a picked id that is missing has died, per docs/adr/world-model.md. */
 export function resolve(snapshot: WorldSnapshot, picked: Picked | null): Resolved {
     if (picked === null) {
         return { kind: "none" };

@@ -19,7 +19,7 @@ slow to send.
 
 The web adapter's history in `WorldHost`, and how the page's chart and gap
 filling ask for rows. The domain is untouched, since the history belongs to the
-adapter, per [0007](../decisions/0007-state-leaves-as-a-snapshot-commands-go-in.md).
+adapter, per [commands and snapshots](../adr/commands-and-snapshots.md).
 
 ## Open questions
 

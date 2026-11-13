@@ -1,6 +1,6 @@
 package io.github.decoppelelias.evolutionsimulation.domain;
 
-/** A fact a component shows others, per 0013. Built from a class, so a misspelt feature does not compile. */
+/** A fact a component shows others, per docs/adr/perception.md. Built from a class, so a misspelt feature does not compile. */
 record Feature(String name) {
     Feature {
         if (name.isBlank()) {

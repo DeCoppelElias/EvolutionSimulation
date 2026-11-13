@@ -1,6 +1,6 @@
 # World size on the page
 
-Status: built, [0020](../decisions/0020-the-interface-is-a-web-page.md).
+Status: built, [genes and settings](../adr/genes-and-settings.md).
 
 ## What it does
 
@@ -19,12 +19,12 @@ the first experiments a person watching would want.
 
 The create screen and the request it sends. Size stays a constructor input
 rather than a setting, per
-[0017](../decisions/0017-every-number-is-a-setting-or-a-gene.md), so the
+[genes and settings](../adr/genes-and-settings.md), so the
 settings panel is not involved, and a reset keeps the size.
 
 ## Open questions
 
-None left. Entry 15's grill set the range at 5 to 25, since 5 by 5 is the
+None left. [Page layout and theme](../roadmap/page-layout-and-theme.md)'s grill set the range at 5 to 25, since 5 by 5 is the
 smallest the starting 10 rabbits and 7 grass fit with room and zoom and pan make
 25 readable. A reset keeps the size, since resizing would change the domain and
 the replay log for a world that shares nothing with the old one.

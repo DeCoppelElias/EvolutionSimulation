@@ -25,7 +25,7 @@ world process, alongside regrowth.
 ## Open questions
 
 Which deaths leave one. A predator kills by eating, per
-[0016](../decisions/0016-feeding-takes-the-tile.md), and takes the whole prey,
+[actions](../adr/actions.md), and takes the whole prey,
 so a corpse from a kill means the predator eats part of it, while a death by
 starving or age leaves the whole body.
 

@@ -24,14 +24,14 @@ species layout. Nothing else, since it needs no new component and no new intent.
 ## Open questions
 
 Whether it belongs anywhere, since
-[0016](../decisions/0016-feeding-takes-the-tile.md) settles feeding without it.
+[actions](../adr/actions.md) settles feeding without it.
 
 Whether it is still wanted once violence exists. A predator kills by eating on
-its turn, per [0016](../decisions/0016-feeding-takes-the-tile.md), and an
+its turn, per [actions](../adr/actions.md), and an
 attack intent, a home where a creature chooses violence, comes only when one
 side has a choice to make. Keeping both means two combat systems, one decided
 and one automatic.
 
 Whether the automatic version can be made conditional, which
-[0008](../decisions/0008-brains-decide-systems-apply.md) says it cannot, since
+[actions](../adr/actions.md) says it cannot, since
 the contest does not exist until every intent has been collected.

@@ -10,7 +10,7 @@ creature the 2022 model has, and the one the project is named for.
 ## Why it is interesting
 
 A human is too difficult to start with, per
-[0002](../decisions/0002-replace-the-model-layer-in-place.md), and that
+[workflow](../adr/workflow.md), and that
 difficulty is the point. Whatever makes it harder than a rabbit is a capability
 the world does not have yet, and each one should arrive as a component or a
 system that rabbits and wolves can meet too.
@@ -18,8 +18,8 @@ system that rabbits and wolves can meet too.
 ## What it would touch
 
 A species value and a sprite, drawn like the rabbit's per
-[0025](../decisions/0025-the-art-is-pixel-art-drawn-for-the-project.md). The 2022
-`Human.png` leaves the tree in roadmap entry 1 and stays in git history. Past
+[interface and art](../adr/interface-and-art.md). The 2022
+`Human.png` leaves the tree in [minimal loop](../roadmap/minimal-loop.md) and stays in git history. Past
 that it depends on what a human can do that the other species cannot.
 
 ## Open questions

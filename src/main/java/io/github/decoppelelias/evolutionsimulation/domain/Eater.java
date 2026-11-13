@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-/** The foods its carrier takes, fixed in its species recipe and shown to others, per 0016. */
+/** The foods its carrier takes, fixed in its species recipe and shown to others, per docs/adr/actions.md. */
 final class Eater implements Component {
     /** Sorted by simple name, so a set's order cannot reach a replay. */
     record Takes(List<Class<? extends Edible>> foods) {}

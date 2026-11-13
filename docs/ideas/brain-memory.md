@@ -19,9 +19,9 @@ mutation can discover, since a remembered plan is a behaviour of its own.
 ## What it would touch
 
 The brain is a component, per
-[0003](../decisions/0003-entities-carry-components.md), so it could hold fields.
+[world model](../adr/world-model.md), so it could hold fields.
 That state is per individual and is not a gene, so it is not inherited, and
-[0013](../decisions/0013-perception-is-one-type.md) gives a brain no absolute
+[perception](../adr/perception.md) gives a brain no absolute
 positions, so a remembered target has to be stored relative to the creature and
 updated as it moves. Replay is unaffected as long as the state changes only
 inside the decide step.
@@ -32,4 +32,4 @@ Whether memory is state on the brain or a component of its own that a sense
 fills in, which would keep brains stateless and easier to test.
 
 What a network brain does with it, which ties into the open input question in
-[0018](../decisions/0018-brain-computation-model-and-warm-starting.md).
+[brains](../adr/brains.md).
