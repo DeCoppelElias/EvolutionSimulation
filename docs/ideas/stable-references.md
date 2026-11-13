@@ -29,6 +29,9 @@ read: whether an idea or entry repeats what a topic it links says.
 
 ## What it would touch
 
+The move onto the [shared workflow kit](shared-workflow-kit.md) carries this
+out.
+
 The roadmap files and their README, the numbering rule in
 [0001](../decisions/0001-documentation-splits-into-five-artifacts.md), every
 idea and entry that cites a number or restates a decision,

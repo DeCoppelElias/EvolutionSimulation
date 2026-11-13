@@ -4,39 +4,52 @@ Status: idea.
 
 ## What it does
 
-Moves the parts of the workflow that are not about this project into a
-repository of their own, which other projects install: the document layout, the
-generic skills, `tools/docs-check.py`, `tools/comment-check.py` and the skills'
-`evals/` scenarios. This project keeps a pinned install and its own settings,
-such as its paths, its build command and whose approval the skills wait for.
+Moves the parts of the workflow that are not about this project into
+groundwork, a Claude Code plugin in its own repository at
+`DeCoppelElias/groundwork`, which other projects install. It holds the
+document layout, `docs-check.py`, a skill that sets the documents up in a new
+project, and only those workflow skills a fresh agent still needs. This project
+keeps its own documents, `tools/comment-check.py` and its simulation tools.
 
 ## Why it is interesting
 
-The workflow was copied from project to project, and each copy changed a
-little, so the older projects run older versions of it. A kit changes in one
-place and every project picks the change up deliberately.
+A kit changes in one place and every project picks the change up
+deliberately. The project holds no copy of the kit, only the install, so there
+is nothing left to drift.
 
-To keep it that way, the project holds no copy of the kit, only the install
-and its settings, so there is nothing left to drift.
+Building it also fixes how the documents grew here. `DESIGN.md` turned into a
+second copy of the decisions, because nothing said what it must not hold.
 
 ## What it would touch
 
-The generic skills and the two scripts leave this repository. `AGENTS.md`,
-[0001](../decisions/0001-documentation-splits-into-five-artifacts.md) and
+Moving this project onto groundwork is a session of its own, and carries out
+three other ideas: [decision topics](decision-topics.md),
+[stable references](stable-references.md) and the
+[skill review](skill-review.md). `DESIGN.md` shrinks to vision, goals and
+non-goals. The decisions are regrouped by topic into `docs/adr/`. A
+`CONTEXT.md` glossary is written, and the roadmap files are named by slug. The
+five project skills leave `.claude/skills/`, `AGENTS.md` and
 [0019](../decisions/0019-workflows-are-skills-and-invariants-are-scripts.md)
-point at the kit, and CI installs it so the docs check still runs. It comes
-after the [skill review](skill-review.md), so the kit starts from skills that
-have been checked.
+point at the kit, and CI fetches `docs-check.py` from it.
 
 ## Open questions
 
-Whether it is a plugin, which updates in one place, or a template repository,
-which is copied and drifts again.
+Settled in the grill of 2026-11-13, and kept in groundwork's own decision log
+once it exists:
 
-How a skill that names a decision, a build command or Elias gets those from
-the project's settings.
+- It is a plugin with a setup skill, not a template, and assumes no stack.
+- `DESIGN.md` never links a decision. `CONTEXT.md` follows the mattpocock
+  glossary format. Decisions live one per topic in `docs/adr/<topic>.md`,
+  rewritten in place, with an index grouped by area.
+- Roadmap entries are named by slug, and the build order lives only in the
+  roadmap's README.
+- Each document states what it holds and never holds, `docs-check.py` enforces
+  what a regex can, and an agent unsure where something goes asks Elias.
+- Preferences and approval points are lines in `AGENTS.md`. A workflow skill
+  exists only where a fresh agent gets the flow wrong without it, tested
+  against a sample project inside the kit.
+- Grilling uses the mattpocock skills, and a grill writes nothing until it ends.
 
-Where the scenarios run once the skills live elsewhere.
-
-Whether to wait until a second project wants the kit, which is the
-recommendation. Until then it is one project's workflow with extra packaging.
+Left open: which workflow skills survive the baseline runs, and how this
+project's 25 decisions regroup, which the migration session settles with
+Elias.

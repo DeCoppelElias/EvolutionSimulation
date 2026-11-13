@@ -64,6 +64,9 @@ changing-decisions skill.
 
 ## What it would touch
 
+The move onto the [shared workflow kit](shared-workflow-kit.md) carries this
+out, with topics named by slug in `docs/adr/`.
+
 Every file in `docs/decisions/` and its README, `DESIGN.md` where content moves
 into it, every document that links a decision, `tools/docs-check.py` and its
 tests, and the changing-decisions and auditing-docs skills with their `evals/`

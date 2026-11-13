@@ -47,6 +47,9 @@ There is no review schedule beyond that.
 
 ## What it would touch
 
+The move onto the [shared workflow kit](shared-workflow-kit.md) carries this
+out, as baseline runs that decide which skills the kit keeps.
+
 Every skill in `.claude/skills/` and its `evals/` scenario, `AGENTS.md`,
 `.claude/settings.json`, `tools/docs-check.py` and its tests, and a line in
 [0019](../decisions/0019-workflows-are-skills-and-invariants-are-scripts.md)
