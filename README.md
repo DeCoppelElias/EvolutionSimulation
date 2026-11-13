@@ -1,225 +1,115 @@
-# HumanSimulation
-[![CI](https://github.com/DeCoppelElias/HumanSimulation/actions/workflows/ci.yml/badge.svg)](https://github.com/DeCoppelElias/HumanSimulation/actions/workflows/ci.yml)
+# EvolutionSimulation
+[![CI](https://github.com/DeCoppelElias/EvolutionSimulation/actions/workflows/ci.yml/badge.svg)](https://github.com/DeCoppelElias/EvolutionSimulation/actions/workflows/ci.yml)
 
-A world you watch evolve. Grass falls on a grid every seven days and withers if
-nothing eats it within twelve. Rabbits walk toward the grass they can see, eat
-it, and starve when they go too long without. A rabbit with enough reserve can
-breed, and its child inherits its genes with small mutations, so the population
-drifts toward whatever works. Wolves hunt the rabbits, and a wolf that moves
-before a rabbit and lands on its tile eats it.
-`DESIGN.md` says where it is going and `docs/roadmap/` how far it has got.
+A small world where creatures evolve by natural selection, and you watch it
+happen in your browser.
 
-The 2022 version, a Swing app of humans looking for food, is on the
-`v1.0-original-2022` tag.
+![Rabbits and wolves moving across a pixel-art meadow](docs/media/world.gif)
+
+Every creature carries genes that decide how it behaves: how strongly it is
+drawn to food, how far it sees, how fast it moves, how much it shies away from
+others. A creature that eats well lives long enough to breed, and its children
+inherit its genes with small random changes. Nothing scores the creatures and
+nothing picks the winners. The ones that survive simply leave more children, so
+over a few hundred days the population drifts toward whatever works.
+
+Nobody tells a rabbit that wolves are dangerous. A rabbit only sees that
+something nearby eats meat. Put wolves in its world and, generation by
+generation, rabbits evolve to keep further away from them.
+
+## What you can do
+
+Create worlds from a seed and watch them play at up to ten days a second, or
+fast-forward thousands of days. Click any creature to see its genes, its
+reserve and how far it sees. Chart the population of each species over time.
+Drop new creatures in, change any rule of the world with a slider while it
+runs, or turn mutation off and watch evolution stop. The same seed always
+replays the same world, so a strange run can be watched again.
+
+![The Inspector showing a rabbit's genes and its view range](docs/media/inspector.png)
+
+![The population chart in dark mode](docs/media/population-dark.png)
+
+It works on a phone too, and the page follows your system's light or dark
+setting. The pixel art is drawn for the project, and a creature's markings
+follow its genes, so relatives look alike.
+
+## Try it
+
+You need Java 25. The build fetches Maven and Node itself.
+
+    git clone https://github.com/DeCoppelElias/EvolutionSimulation.git
+    cd EvolutionSimulation
+    ./mvnw package
+    java -jar target/EvolutionSimulation.jar serve
+
+`serve` opens the page in your browser. Create a world, press play, and open
+the World panel to spawn a few wolves. On the page, Space plays and pauses,
+plus and minus zoom, and a click on a creature inspects it.
+
+## How a creature decides
+
+Each day a creature scores every tile it could reach by what it sees there,
+and moves to the best one. What it sees are features: `Plant` or `Meat` for
+food, and `takes.Plant` or `takes.Meat` for something that eats it. Each
+feature has three genes. `near.X` pulls toward the nearest one, `hungry.near.X`
+adds to that pull as the creature gets hungry, and `sum.X` pulls by closeness
+to all of them. Any pull can go negative, so a rabbit can evolve to walk away
+from food and starve for it. Fleeing wolves comes from `near.takes.Meat`
+drifting below zero.
+
+## For tinkerers
+
+Everything below needs the jar from `./mvnw package`.
+
+**Headless runs.** `run` advances a world without a page and prints one JSON
+line per day: each species' population, the mean of every gene and the day's
+deaths by cause.
+
+    java -jar target/EvolutionSimulation.jar run --seed 42 --days 300
+    java -jar target/EvolutionSimulation.jar run --seed 1 --days 500 --spawn rabbit=40 --spawn wolf=6 --set-at 200:world.grassPerDrop=3
+
+`--set` and `--set-at` change settings, `--gene` changes a starting gene,
+`--export` saves the creatures alive on a given day and `--spawn-from` starts a
+new world from them. `run --help` lists everything.
+
+**Experiments.** `tools/compare.py` runs variants of a world over many seeds in
+parallel and reports how each fared, with medians, effect sizes and
+Mann-Whitney tests. `tools/ancestor_competition.py` checks that evolution did
+something, by setting evolved rabbits against copies of their ancestors. Both
+need only Python 3, and the presets live in `tools/experiments/`.
+
+    python tools/compare.py tools/experiments/fleeing.json
+    python tools/ancestor_competition.py tools/experiments/rabbit-flees-gate.json
+
+**HTTP API.** `serve --no-browser --port 0` holds worlds behind a JSON API,
+which the page and scripts both use. It prints its address on one line when it
+is ready.
+
+    curl -X POST localhost:PORT/worlds -d '{"seed":42}'
+    curl -X POST localhost:PORT/worlds/ID/commands -d '{"type":"spawn","species":"rabbit","count":10}'
+    curl -X POST localhost:PORT/worlds/ID/step -d '{"days":500}'
+    curl localhost:PORT/worlds/ID/census?from=498
+
+Worlds can also play on a timer, stream each day as server-sent events, list
+and change their settings, and return their full command log.
+`serve --host 0.0.0.0` lets a phone on the same network open the page.
 
 ## Building
 
-Java 25. No Maven install is needed, since the wrapper fetches it.
+    ./mvnw verify                    compile, check formatting, run the tests
+    ./mvnw verify -Pskip-frontend    the Java alone, serving the API without a page
+    ./mvnw frontend:npm "-Dfrontend.npm.arguments=run dev"    the page with hot reload
 
-    ./mvnw verify     compile, check formatting, run the tests
-    ./mvnw package    also build target/HumanSimulation.jar
+The simulation is Java with Javalin, and the page is React and TypeScript drawn
+on a canvas. The art lives as text grids in `art/sprites.py`.
 
-The page is built from `frontend/` in the same run. The build downloads its own
-Node into `target/`, so none is needed on PATH. `-Pskip-frontend` builds the
-Java alone, and that jar serves the API without a page. While working on the
-page, `./mvnw frontend:npm "-Dfrontend.npm.arguments=run dev"` serves it with
-hot reload on port 5173, passing API calls to a `serve` on port 7070.
+## Where it is going
 
-## Watching
+`DESIGN.md` describes what the world is meant to become, `docs/roadmap/` how
+far it has got, and `docs/decisions/` why it is shaped the way it is. Next
+come small effects for births, deaths and kills, and a hosted version anyone
+can open.
 
-    java -jar target/HumanSimulation.jar serve
-
-`serve` opens the page in your browser. Pick a world or create one, with a seed
-or one drawn from the clock and a size from 5 to 25 tiles a side, 20 by 20 by
-default. It starts with ten rabbits and seven grass whatever its size, so a
-small world is a crowded one.
-
-A bar along the top holds the way back to the worlds, the day, play and pause,
-step, five speeds, fast-forward up to 10,000 days, zoom, the theme and a button
-for each panel. The world fills the rest. It opens at the largest whole scale
-that shows all of it, and it zooms in whole steps of the screen's own pixels,
-so the art stays crisp at any display scaling, with the buttons, the mouse wheel
-at the cursor or two fingers. A drag pans it with any tool, as
-far as one tile past its edge, and Fit brings it back. Past the edge the meadow
-goes on, dimmed.
-
-The world is pixel art on a meadow with soft autumn patches of gold and straw. A
-rabbit crosses each move in one bound, higher the farther it goes. A wolf walks
-a move of one tile and leaps a longer one or a kill. Both blink while they
-stand. A move takes 260 ms plus 160 ms a tile, cut to fit the day, and at 10
-days a second everything glides instead. A tile draws up to three creatures,
-nudged apart, with a wolf in front of a rabbit and grass underneath, and a chip
-counts them whenever more than one is there. A creature's markings follow its
-genes, so relatives and creatures that evolved alike look alike: a rabbit's
-patch and its colour, and a wolf's coat, its darker saddle and paler muzzle or
-legs.
-
-The rail on the left holds three tools. Inspect, the default, selects what you
-click. The hand only pans. Place lists the species, shows the chosen one under
-the mouse, and puts one down with each click. Esc, a right click or Place's
-button again goes back to Inspect.
-
-The panels open one at a time in a drawer beside the world. Clicking a creature
-opens the Inspector, with a picture of it in its markings and its age,
-reserve, days to starve and genes followed
-live and its view range tinted on the grid. A tile with more than one thing on
-it lists them to pick from, and grass shows its food value and the days it has
-left. Creatures is a table of every creature that sorts by age or reserve and
-updates when you press Refresh. Population charts each species. World shows the
-seed and holds spawning a number at random, a reset with an optional new seed,
-resetting the statistics and deleting the world. Worlds start without wolves, so
-spawn a few to watch them hunt. The address holds the world's id, so a reload or
-a second tab shows the same world.
-
-Settings has a slider for every number the world reads, grouped as World, Grass,
-Rabbit and Wolf, each with its description: how much grass falls, how often and
-how long it lasts, what a rabbit or a wolf pays a day, how far it walks, what
-breeding costs, and what a rabbit is worth to the wolf that eats it. An edit
-takes effect at the next day and only in that world. An edited setting is marked
-in bold, its ↺ button puts the default back, and "Restore all" resets every one.
-A reset keeps the edits. The World group starts with a `mutation` checkbox.
-Untick it and children and new spawns become exact copies, so the world stops
-evolving.
-
-Space plays and pauses, I, H and P pick a tool, plus and minus zoom, 0 fits, a
-full stop steps one day while paused, and Esc undoes one thing at a time. The
-page follows the system's light or dark setting until the sun and moon button
-picks one, and the World panel hands it back to the system. Only the page goes
-dark, and the world keeps its daylight.
-
-On a phone the bar keeps play, step, the speeds and the day and folds the rest
-into a menu, the tools sit along the bottom, and a panel opens as a sheet over
-the lower part of the world. `serve --host 0.0.0.0` lets a phone on the same
-network open the page at the computer's address.
-
-The art is drawn for the project and lives as text grids in `art/sprites.py`.
-
-## Running
-
-`run` advances a seeded world without a page and prints its census as JSON
-Lines, one line per day: the population of each species, the mean of each gene
-over the members alive that day, and that day's deaths per species by cause,
-which is `starved`, `eaten` or `aged`.
-
-    java -jar target/HumanSimulation.jar run --seed 42 --days 300
-    {"seed":42,"day":1,"population":{"grass":0,"rabbit":10,"wolf":0},"geneMeans":{"rabbit":{"breedPull":1.02,...,"whim":0.49}},"deaths":{}}
-    ...
-    {"seed":42,"day":53,"population":{...},"geneMeans":{...},"deaths":{"grass":{"eaten":1},"rabbit":{"starved":1}}}
-    ...
-    {"seed":42,"day":300,"population":{"grass":0,"rabbit":8,"wolf":0},"geneMeans":{"rabbit":{"breedPull":1.13,...,"whim":0.44}},"deaths":{}}
-
-`--days` is required. `--seed` defaults to one drawn from the clock, `--width`
-and `--height` to 20. `--spawn SPECIES=COUNT`, once per species, sets the
-starting population, which is ten rabbits and no grass or wolves without it
-or `--spawn-from` below, so `--spawn rabbit=40 --spawn wolf=6` adds a predator.
-Grass falls on its own every seven days either way. The same seed prints the same lines.
-
-`--set OWNER.KEY=VALUE` changes any setting from day 0, and
-`--set-at DAY:OWNER.KEY=VALUE` changes it once DAY days are complete, so a run
-can get harsher as it goes. `--gene SPECIES.GENE=VALUE` starts that species'
-spawn from another value of one gene. Each is repeatable, and a bad name or
-value fails with the same message the panel would give.
-
-    java -jar target/HumanSimulation.jar run --seed 1 --days 500 --set world.mutation=0 --set-at 200:world.grassPerDrop=3 --gene rabbit.near.Plant=0.2
-
-`--export FILE` with `--export-day DAY`, repeatable, writes every creature
-alive once DAY days are complete to FILE, one line each with its genes.
-`--spawn-from FILE`, repeatable, starts a world from such a file, one creature
-per line, after any `--spawn`. A line needs only its species, and genes it
-leaves out come from the baseline, so a hand-written genome works too.
-`run --help` lists the options under World, Population, Settings and Output.
-
-    java -jar target/HumanSimulation.jar run --seed 7 --days 1000 --export evolved.jsonl --export-day 1000
-    java -jar target/HumanSimulation.jar run --seed 8 --days 500 --set world.mutation=0 --spawn-from evolved.jsonl
-
-    {"seed":7,"day":1000,"species":"rabbit","id":4182,"genes":{"breedPull":1.2,...,"near.Plant":1.4,...,"whim":0.4}}
-
-A creature scores every tile it could end the day on by what it sees there.
-Each thing in view shows features: `Plant` or `Meat` for the food it is, and
-`takes.Plant` or `takes.Meat` for the food it eats. Each feature has three
-genes: `near.X` pulls toward the nearest one, `hungry.near.X` adds to that pull
-as the creature gets hungry, and `sum.X` pulls by closeness to all of them. A rabbit starts pulled toward grass
-and a little away from other rabbits and from anything that eats meat, a wolf
-toward rabbits and a little away from other wolves. Nothing tells a rabbit that
-a wolf is dangerous, and beside wolves it evolves to keep further away. Every pull can go negative, so a rabbit can evolve to walk
-away from food, and starve for it.
-
-## Comparing
-
-`tools/compare.py` runs variants of a world over many seeds, one `run` per seed
-and variant in parallel, and reports how each fared. It needs the jar from
-`./mvnw package` and Python 3, and nothing else.
-
-    python tools/compare.py tools/experiments/mutation-ramp.json
-    python tools/compare.py --seeds 1-30 --days 500 --variant base= --variant cheap="--set rabbit.speedCharge=0.05"
-
-A preset in `tools/experiments/` names the seeds, days, shared flags and the
-variants, and flags on the command line override it. `watchable` is the world
-the page starts from. `mutation-ramp` runs mutating rabbits against clones as
-food runs short. `predator` puts 6 wolves among 40 rabbits on a 40 by 40 grid
-for 2000 days. `fleeing` puts 24 wolves among 160 rabbits on an 80 by 80 grid,
-large enough that both usually last the 2000 days.
-
-Per species, the report gives the day each world died out, how far each gene's
-mean moved from day 1, and each cause's share of the species' deaths, such as
-how much grass withered rather than being eaten. A species without genes, like
-grass, shows only its deaths, and one that only ever dies of one cause shows no
-deaths. It then compares each variant with the first on every measure: both
-medians, Â12 (the chance that a run of the variant beats a run of the first,
-0.5 meaning no difference), and a Mann-Whitney p printed twice. Read the raw p
-for a measure you chose before running, and the Holm p, which allows for every
-test in the report, when scanning for anything that stands out. `--per-seed`
-adds each seed's population and genes, and `--json` prints everything. The script never says which variant won.
-
-`tools/ancestor_competition.py` checks that rabbits learn. It evolves a world
-per seed from a genome that barely survives, then sets ten of the survivors
-against ten copies of that genome, in one world and each in a world of its
-own, with mutation off and the food the preset's `test` flags give. It reports the evolved share of the shared
-world, how many rabbits each group sustains alone, and where the genes moved.
-Its files stay under `target/ancestor-competition/`, one folder per seed.
-
-    python tools/ancestor_competition.py tools/experiments/rabbit-learns-gate.json
-
-A preset with a `control` block evolves a second arm beside the first on other
-flags and compares against its survivors instead of the starting genome. One
-with `test.partners` also spawns that many of another species, drawn from the
-evolving arm's last day, into every test world. `rabbit-flees-gate` evolves
-rabbits with and without wolves, and its report counts the seeds where each
-gene ended below its start and below the control's.
-
-    python tools/ancestor_competition.py tools/experiments/rabbit-flees-gate.json
-
-## Serving
-
-`serve` holds worlds behind an HTTP API, which the page and an agent both use.
-It prints one line on stdout when it is ready and logs to stderr.
-`--no-browser` leaves the browser closed, which is how an agent runs it.
-
-    java -jar target/HumanSimulation.jar serve --no-browser --port 0
-    {"event":"ready","url":"http://127.0.0.1:63214","port":63214}
-
-A world starts empty and paused. Create one, spawn rabbits, step it ahead and
-read it back:
-
-    curl -X POST localhost:63214/worlds -d '{"seed":42}'
-    curl -X POST localhost:63214/worlds/ID/commands -d '{"type":"spawn","species":"rabbit","count":10}'
-    curl -X POST localhost:63214/worlds/ID/step -d '{"days":500}'
-    curl localhost:63214/worlds/ID/census?from=498
-    curl localhost:63214/worlds/ID/log
-
-`GET /worlds/ID` is the current snapshot, `POST .../play` and `.../pause` run
-it on a timer, and `GET .../events` streams each day. `docs/roadmap/02-serving-worlds-over-http.md`
-lists the first routes. `GET .../settings` lists every declared setting with its
-bounds, step and default, and the snapshot carries the current values.
-`GET .../genes` lists each species' genes with their ranges and baseline, which
-the page measures markings against. Two
-commands change them:
-
-    curl -X POST localhost:63214/worlds/ID/commands -d '{"type":"setSetting","owner":"rabbit","key":"breedingLoss","value":20}'
-    curl -X POST localhost:63214/worlds/ID/commands -d '{"type":"restoreDefaults","owner":"rabbit"}'
-
-`restoreDefaults` with no owner restores everything, and with an owner and a
-`key` one setting. A spawn takes an optional `genes` object, such as
-`{"near.Plant":0.2}`, which overrides those genes for the members it creates. Process settings belong to the owner `world`. With `--no-browser` the server quits after 10 minutes without a
-request or an open stream, and without it never quits. It listens on `127.0.0.1` unless `--host`
-says otherwise.
+The project started in 2022 as HumanSimulation, a Swing app of humans looking
+for food. That version is kept on the `v1.0-original-2022` tag.
