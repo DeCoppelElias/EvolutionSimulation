@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.random.RandomGenerator;
 
-/** Scores every option by pulls on the features it sees, nearest and summed, and picks one by softmax, per 0023. */
+/** Scores every option by pulls on the features it sees, nearest and summed, and picks one by softmax, per docs/adr/brains.md. */
 final class ScoringBrain implements Brain {
     static final String WHIM = "whim";
     static final String BREED_PULL = "breedPull";

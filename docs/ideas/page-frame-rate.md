@@ -9,7 +9,7 @@ world of 200 creatures plays at 60 frames a second on an ordinary laptop.
 
 ## Why it is interesting
 
-Roadmap entry 14 brings new art and motion: hops, a leaping wolf, shared tiles
+[Art and motion](../roadmap/art-and-motion.md) brings new art and motion: hops, a leaping wolf, shared tiles
 and markings drawn from genes. Each costs drawing time, and a page that stutters
 undoes the point of making it look good. The entry promised the 60-frame check
 and left it out, so the check gets the focus of its own pass.

@@ -2,7 +2,7 @@ package io.github.decoppelelias.evolutionsimulation.domain;
 
 import java.util.List;
 
-/** Every feature a brain carries genes for, in gene layout order, per 0013. */
+/** Every feature a brain carries genes for, in gene layout order, per docs/adr/perception.md. */
 final class Features {
     static final Feature PLANT = Feature.of(Plant.class);
     static final Feature MEAT = Feature.of(Meat.class);

@@ -27,7 +27,7 @@ what is wrong without a debugger.
 
 Whether jqwik runs on the JUnit 6 platform, or would force a JUnit downgrade.
 
-Whether entry 6, when mutation produces arbitrary genomes, is the point where
+Whether [breeding and settings](../roadmap/breeding-and-settings.md), when mutation produces arbitrary genomes, is the point where
 shrinking starts to pay, or whether the seeded loops stay enough.
 
 How generated inputs draw their randomness, so that a property test does not

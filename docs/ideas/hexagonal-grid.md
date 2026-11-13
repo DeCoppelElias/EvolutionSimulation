@@ -18,7 +18,7 @@ same thing everywhere.
 ## What it would touch
 
 Not much of the model, because
-[0015](../decisions/0015-geometry-lives-in-the-grid.md) keeps the direction set
+[world model](../adr/world-model.md) keeps the direction set
 and the distance function inside the grid. The cost is mostly in the interface.
 Axial coordinates replace x and y in every position, and the browser's grid
 renderer has to draw hexagons and hit-test clicks against them.

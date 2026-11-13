@@ -1,6 +1,6 @@
 # Comparison statistics
 
-Status: built, [0021](../decisions/0021-agents-drive-worlds-over-http-and-run.md).
+Status: built, [experiments and training](../adr/experiments-and-training.md).
 
 ## What it does
 
@@ -13,7 +13,7 @@ raw and Holm-adjusted across the report. Presets move to 30 seeds.
 
 ## Why it is interesting
 
-Counts over ten seeds cannot tell a real effect from luck. Entry 7's first
+Counts over ten seeds cannot tell a real effect from luck. [Comparing runs](../roadmap/comparing-runs.md)'s first
 selection gate asked for 8 of 10, and a variant that truly wins 70% of the
 time passes that only about 38% of the time. Tuning runs on the same ten seeds also fit settings to
 those seeds. Â12 and Mann-Whitney are the usual pair for randomised algorithms
@@ -32,4 +32,4 @@ roadmap entry that sets them.
 ## Open questions
 
 Whether a gate's threshold is written as an Â12, a p-value or both, settled in
-entry 9's grill.
+[rabbit learns](../roadmap/rabbit-learns.md)'s grill.

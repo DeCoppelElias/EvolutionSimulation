@@ -1,5 +1,5 @@
 {
-  "about": "Entry 9's gate: rabbits evolved from a genome that barely survives, against that genome, in one world and apart. Expectations are in docs/roadmap/09-rabbit-learns.md.",
+  "about": "The rabbit-learns gate: rabbits evolved from a genome that barely survives, against that genome, in one world and apart. Expectations are in docs/roadmap/rabbit-learns.md.",
   "seeds": "1-30",
   "species": "rabbit",
   "world": ["--width", "40", "--height", "40", "--set", "world.grassPerDrop=28"],

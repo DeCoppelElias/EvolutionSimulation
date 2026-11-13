@@ -1,12 +1,12 @@
 # Diet
 
-Status: built, [0016](../decisions/0016-feeding-takes-the-tile.md).
+Status: built, [actions](../adr/actions.md).
 
 ## What it does
 
 Lets a creature say which edibles it accepts, so feeding stops taking
 every edible on the tile. Until then every eater eats everything edible, per
-[0016](../decisions/0016-feeding-takes-the-tile.md).
+[actions](../adr/actions.md).
 
 ## Why it is interesting
 
@@ -29,7 +29,7 @@ recommended one, at the cost of a small fixed list of kinds.
 
 No diet at all, which is where the rebuild starts.
 
-[0016](../decisions/0016-feeding-takes-the-tile.md) settled on a fourth: each
+[actions](../adr/actions.md) settled on a fourth: each
 food kind is a component of its own, such as `Plant`, and an `Eater` component
 holds the kinds its carrier takes.
 

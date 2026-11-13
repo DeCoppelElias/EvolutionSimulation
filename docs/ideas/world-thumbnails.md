@@ -23,5 +23,5 @@ reach both.
 
 Whether a thumbnail refreshes while its world plays, which needs polling or a
 stream per card, and whether it is worth it once hosting lands a stranger
-straight in a fresh world and the picker is seen mostly locally. Entry 15's
+straight in a fresh world and the picker is seen mostly locally. [Page layout and theme](../roadmap/page-layout-and-theme.md)'s
 grill left it out for that upkeep.

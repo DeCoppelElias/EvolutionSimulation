@@ -22,12 +22,16 @@ on when regenerating is allowed.
 
 ## Open questions
 
-Whether it is worth its overhead, which is why it was left out of roadmap entry
-1. It breaks on every intended behaviour change: each rule in entries 5 and 6
-and each tuned default in entries 8 and 9, so regenerating it becomes part of almost
+Whether it is worth its overhead, which is why it was left out of the
+[minimal loop](../roadmap/minimal-loop.md). It breaks on every intended
+behaviour change: each rule in
+[eating and starving](../roadmap/eating-and-starving.md) and
+[breeding and settings](../roadmap/breeding-and-settings.md)
+and each tuned default in [entity lifespan](../roadmap/entity-lifespan.md) and
+[rabbit learns](../roadmap/rabbit-learns.md), so regenerating it becomes part of almost
 every change. What it catches is mostly harmless, since comparisons across
 changes are about the direction of selection over many seeds rather than a
-matching trace, per [0012](../decisions/0012-tests-target-brains-without-a-world.md),
+matching trace, per [testing](../adr/testing.md),
 and a run that drifted is as valid as the one before. Pinning only the final
 day's census has the same cost.
 

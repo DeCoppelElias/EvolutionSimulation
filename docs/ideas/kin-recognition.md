@@ -9,7 +9,7 @@ as one more feature with pulls of its own in the scoring brain.
 
 ## Why it is interesting
 
-Roadmap entry 11 makes the brain a sum over features that components show, and
+[Predator](../roadmap/predator.md) makes the brain a sum over features that components show, and
 same species is not a component, so it is left out. While rabbits are the only
 animal carrying `Meat`, a rabbit's pull toward `Meat` is its pull toward other
 rabbits. A second meat-carrying herbivore, such as a deer, would get the same

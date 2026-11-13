@@ -190,7 +190,7 @@ public final class World {
         return genome.declares(SPEED) ? OptionalDouble.of(genome.scalar(SPEED)) : OptionalDouble.empty();
     }
 
-    /** Applies each decision in the day's order. A creature eats its tile as its own turn ends, per 0005. */
+    /** Applies each decision in the day's order. A creature eats its tile as its own turn ends, per docs/adr/the-day.md. */
     void resolve(List<Decision> order) {
         for (Decision decision : order) {
             Entity entity = entities.get(decision.entityId());
@@ -212,7 +212,7 @@ public final class World {
         }
     }
 
-    /** Per 0016: a creature takes every food on its tile that its eater names. */
+    /** Per docs/adr/actions.md: a creature takes every food on its tile that its eater names. */
     private void eat(Entity creature) {
         Optional<Metabolism> metabolism = creature.part(Metabolism.class);
         Optional<Eater> eater = creature.part(Eater.class);

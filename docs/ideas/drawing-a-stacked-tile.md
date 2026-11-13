@@ -1,11 +1,11 @@
 # Drawing a stacked tile
 
-Status: built, [0025](../decisions/0025-the-art-is-pixel-art-drawn-for-the-project.md).
+Status: built, [interface and art](../adr/interface-and-art.md).
 
 ## What it does
 
 Shows what is actually on a tile when several things share it.
-[0004](../decisions/0004-creatures-return-intents.md) puts no limit on
+[actions](../adr/actions.md) puts no limit on
 occupancy, so a tile can hold grass, three creatures and a fire, and the grid
 draws one sprite.
 
@@ -20,7 +20,7 @@ population.
 The browser's grid renderer only. The snapshot already carries every entity on
 every tile with its displayable values, so nothing in the model changes.
 
-Roadmap entry 3 draws the lowest-id occupant with a count when there is more
+[Watching in a browser](../roadmap/watching-in-a-browser.md) draws the lowest-id occupant with a count when there is more
 than one, so the grid and the population chart agree. This idea is whatever
 goes beyond that.
 

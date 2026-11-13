@@ -17,11 +17,11 @@ partway through a run, such as wolves appearing once rabbits are established.
 ## What it would touch
 
 One world process with world settings for the species, the count and the
-interval, beside the food spawning from roadmap entry 5.
+interval, beside the food spawning from [eating and starving](../roadmap/eating-and-starving.md).
 
 ## Open questions
 
 Immigrants carry the species' baseline genome, so every arrival dilutes what
-selection has built. That works against the selection gate in roadmap entry 9,
+selection has built. That works against the selection gate in [rabbit learns](../roadmap/rabbit-learns.md),
 so immigration would need to be off by default, or immigrants would need a
 genome drawn from somewhere other than the baseline.

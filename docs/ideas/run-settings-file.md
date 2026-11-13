@@ -11,7 +11,7 @@ the file.
 ## Why it is interesting
 
 An agent comparing several candidate configurations could keep each as a named
-file rather than a long command line. Roadmap entry 7 left it out, since a shell
+file rather than a long command line. [Comparing runs](../roadmap/comparing-runs.md) left it out, since a shell
 repeats a long command for free and tuned values become the defaults in code.
 
 ## What it would touch
@@ -19,7 +19,7 @@ repeats a long command for free and tuned values become the defaults in code.
 The `run` command only. Nothing in the domain.
 
 Elias's trigger for building it: once a preset's flags grow much past the
-grass ramp and the handful of `--gene` overrides that entry 7's
+grass ramp and the handful of `--gene` overrides that [comparing runs](../roadmap/comparing-runs.md)'s
 `mutation-ramp` preset carries, a file of settings, or of starting genes,
 beats a longer list of flags.
 

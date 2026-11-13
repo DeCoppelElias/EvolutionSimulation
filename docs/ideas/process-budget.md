@@ -12,7 +12,7 @@ entry's commits that touched no code under `src/` or `frontend/`.
 
 ## Why it is interesting
 
-The retrospective in the implementing-roadmap-entries skill only adds, so the
+The retrospective that finishes a roadmap entry only adds, so the
 rules grow with every entry and none leave. A large share of commits since the
 rebuild began touched only docs, skills or tools. A number per entry shows
 whether the process is getting lighter or heavier, rather than leaving it to an
@@ -25,9 +25,9 @@ either would be one more rule to keep.
 
 ## What it would touch
 
-The retrospective step in the implementing-roadmap-entries skill and its
-`evals/` scenario, and a line in
-[0019](../decisions/0019-workflows-are-skills-and-invariants-are-scripts.md)
+The retrospective line in the Roadmap entries section of `AGENTS.md`, and a
+line in
+[workflow](../adr/workflow.md)
 on when a rule or skill is retired.
 
 ## Open questions

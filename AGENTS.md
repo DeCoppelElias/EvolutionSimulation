@@ -3,76 +3,110 @@
 Simulation of creatures evolving on a 2D grid, being rebuilt from a 2022 Swing
 application. README.md says what it does today and how to run it.
 
-## Where to find things
+## Documents
 
-`DESIGN.md` describes the system as it is meant to be: what it is for, what it is
-not, and how the model fits together. Read it before changing anything in the
-model layer, and before proposing a feature.
+The documents follow groundwork, the Claude Code plugin this project enables
+in `.claude/settings.json`.
 
-`docs/decisions/` is the decision log, one entry per topic with what was
-rejected and why. Read the entry before reopening a design question. When a
-choice changes, rewrite its entry in place and update `DESIGN.md` to match. Add
-an entry only for a new topic. `docs/decisions/README.md` indexes them.
+- `DESIGN.md` what EvolutionSimulation is for. Read it before proposing a
+  feature.
+- `CONTEXT.md` the glossary. Use its words.
+- `docs/adr/` the decisions, one file per topic. Its README maps them by area.
+  Read the ones that bear on a change before making it.
+- `docs/ideas/` what is wanted and not decided. A new idea goes here without
+  asking, in the format its README gives.
+- `docs/roadmap/` the committed build order, listed in its README.
 
-`docs/ideas/` holds what is wanted and not decided, one file per idea. Look there
-before proposing a feature, and put a rejected or deferred one there rather than
-losing it. It is not a roadmap.
+Each document says at its top what it holds and never holds. When you are not
+sure where something belongs, ask Elias rather than picking. Link a decision or
+an entry rather than restating it.
 
-`docs/roadmap/` is the committed build order for the model layer, one file per
-entry with its status, and `docs/roadmap/README.md` lists them in build order.
-Read it for current status and what comes next. The model layer is being rebuilt, so the
-tree does not match `DESIGN.md` yet.
+`groundwork-docs-check` checks links, indexes and status lines. Run it after
+changing any document. CI runs it at a pinned version, and the pre-commit hook
+runs it where the plugin is installed.
 
 The work plan under `docs/superpowers/plans/` tracks finer-grained work in
 progress. It is gitignored and may be missing from a fresh clone.
 
-Keep this file mechanical. Anything about why the system is shaped the way it is
-belongs in `DESIGN.md` or the decision log.
+Keep this file mechanical. Anything about why the system is shaped the way it
+is belongs in the decisions.
 
-## Workflows
+## Asking
 
-Project skills live in `.claude/skills/`, one folder each with a `SKILL.md`.
-An agent that does not load skills can read them directly.
+Ask Elias before promoting an idea onto the roadmap, changing an accepted
+decision, adding or reordering roadmap entries, and before any push, merge or
+tag. Asking means giving the options with a recommendation and waiting, not
+deciding and asking for confirmation afterwards. Before changing a decision,
+say what the change touches and ask his reason if he has not given it.
 
-- `changing-decisions` for any change to a settled design choice, or a new one.
-- `promoting-ideas` to move an idea onto the roadmap.
-- `implementing-roadmap-entries` to start, resume or finish a roadmap entry.
-- `auditing-docs` to check the documents against each other.
-- `grilling` to settle what an entry or idea leaves open, one question at a
-  time, before planning it.
+Promoting an idea settles its scope and placement. Its open questions wait for
+the grill of the entry that builds it, unless scope or placement depends on
+them. What a changed decision drops and is still wanted goes to `docs/ideas/`.
 
-A new idea goes in `docs/ideas/` without asking, in the format its README gives.
-Ask Elias before promoting an idea, changing an accepted decision, touching the
-roadmap's order, or pushing, merging or tagging. `docs/decisions/0019` says why.
+When a document has drifted or holds something outside its lane, report it
+with the fix you propose, and change it only after Elias says go.
 
-Each workflow skill has an `evals/` scenario. After editing a skill, run its
-scenario on a fresh agent and check the result against the pass criteria there.
+Grill with `grill-with-docs`, one question at a time, with the context and
+your recommendation inside the question. Answer from the code and the
+documents whatever they can answer. A grill writes nothing to the documents
+until it ends, except a deferred idea. Then it sends a summary of every choice
+and the changes it makes, and applies them on a branch after Elias says go.
 
-    python tools/docs-check.py         links, indexes and status lines
-    python tools/test_docs_check.py    its tests
+The 2022 code was deleted by the minimal loop. `git log --diff-filter=D
+--format=%h -1 -- src/main/java/Main.java` names that commit, and
+`git show <commit>^:<path>` reads a file from before it.
 
-The pre-commit hook and CI run `docs-check.py`.
+## Roadmap entries
+
+Starting an entry:
+
+1. Read the entry, the decisions it links and any plan in
+   `docs/superpowers/plans/`.
+2. Grill the details it leaves open, then branch off `master` as
+   `entry-<slug>`.
+3. Write the plan with superpowers:writing-plans, each acceptance line next to
+   the task that meets it. Elias reviews the plan before any code.
+
+Build each task with superpowers:test-driven-development and verify with
+`./mvnw verify` and the `run` command. A change to what the page shows needs
+Elias to watch it, so say what to look at.
+
+An entry is finished when:
+
+- superpowers:verification-before-completion passes on fresh output;
+- every acceptance line names a test that failed before its code existed;
+- superpowers:requesting-code-review has run and its findings are handled;
+- its status reads `done`, `README.md` describes what it built, any idea it
+  built is marked `built`, and any choice made on the way is in its decision;
+- `groundwork-docs-check` is clean;
+- anything an agent got wrong twice during the entry has become an
+  `AGENTS.md` line or a check in `tools/`, and Elias has been told which.
+
+Then it merges on his go, as in Branches. If the session ends first, write a
+handoff with the handoff skill, since the plan does not travel.
+
+## Tools
 
     python tools/compare.py tools/experiments/watchable.json    compare variants over seeds
-    python tools/compare.py tools/experiments/predator.json     entry 11's wolves
-    python tools/compare.py tools/experiments/fleeing.json      entry 12's wolves and rabbits
+    python tools/compare.py tools/experiments/predator.json     the predator entry's wolves
+    python tools/compare.py tools/experiments/fleeing.json      the fleeing entry's wolves and rabbits
     python tools/test_compare.py                                 its tests
 
 `compare.py` needs a jar from `./mvnw package`. When checking a report against
 an acceptance line, read the raw `p` for the measure the line names, and `pHolm`
 only when scanning the whole report. CI runs `test_compare.py`.
 
-    python tools/ancestor_competition.py tools/experiments/rabbit-learns-gate.json    entry 9's gate
-    python tools/ancestor_competition.py tools/experiments/rabbit-flees-gate.json     entry 12's gate
+    python tools/ancestor_competition.py tools/experiments/rabbit-learns-gate.json    the rabbit-learns gate
+    python tools/ancestor_competition.py tools/experiments/rabbit-flees-gate.json     the fleeing gate
     python tools/test_ancestor_competition.py                                          its tests
 
-Entry 9's gate takes about five minutes and entry 12's about seven. Both need
-the same jar, and CI runs the tool's tests.
+The rabbit-learns gate takes about five minutes and the fleeing gate about
+seven. Both need the same jar, and CI runs the tool's tests.
 
 ## Branches
 
 - A roadmap entry is built on its own branch off `master`, named
-  `entry-N-slug`, such as `entry-1-minimal-loop`.
+  `entry-<slug>`, such as `entry-hosting`.
 - Other work, such as a docs change, gets a short branch named for what it
   does, such as `docs/standards-grill`.
 - When the work is finished and reviewed and Elias says go, merge it into
@@ -80,7 +114,7 @@ the same jar, and CI runs the tool's tests.
   requests. CI runs on the push.
 - `master` always holds finished work, never half an entry.
 
-`docs/decisions/0002` says why.
+`docs/adr/workflow.md` says why.
 
 ## Layout
 
@@ -156,7 +190,7 @@ committing.
 ## Before writing tests
 
 Write the test first, run it, and see it fail for the reason it names before
-writing the code that makes it pass. `docs/decisions/0012` says why. When the
+writing the code that makes it pass. `docs/adr/testing.md` says why. When the
 code already exists, break it on purpose, watch the test fail, and restore it.
 A compile error counts as that failure only while the behaviour does not exist
 yet, and a break counts only if the test can see it.

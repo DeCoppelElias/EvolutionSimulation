@@ -1,6 +1,6 @@
 # Shared workflow kit
 
-Status: idea.
+Status: built, [workflow](../adr/workflow.md).
 
 ## What it does
 
@@ -29,7 +29,7 @@ three other ideas: [decision topics](decision-topics.md),
 non-goals. The decisions are regrouped by topic into `docs/adr/`. A
 `CONTEXT.md` glossary is written, and the roadmap files are named by slug. The
 five project skills leave `.claude/skills/`, `AGENTS.md` and
-[0019](../decisions/0019-workflows-are-skills-and-invariants-are-scripts.md)
+[workflow](../adr/workflow.md)
 point at the kit, and CI fetches `docs-check.py` from it.
 
 ## Open questions

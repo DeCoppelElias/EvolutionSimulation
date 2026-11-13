@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
-/** The food kind a rabbit carries, worth an amount read live, per 0016. */
+/** The food kind a rabbit carries, worth an amount read live, per docs/adr/actions.md. */
 final class Meat implements Edible {
     private final DoubleSupplier amount;
 

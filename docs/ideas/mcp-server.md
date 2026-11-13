@@ -22,7 +22,7 @@ task over MCP.
 
 A new adapter beside the web and command-line ones, sending commands in and
 reading snapshots and census rows out, per
-[0007](../decisions/0007-state-leaves-as-a-snapshot-commands-go-in.md). It adds
+[commands and snapshots](../adr/commands-and-snapshots.md). It adds
 the official MCP Java SDK as a dependency, kept out of `domain` by the `jdeps`
 test.
 

@@ -12,14 +12,14 @@ taken out of a running world by hand. The 2022 interface had no such button.
 It makes a world easy to set up for a test, such as thinning out rabbits to see
 what a wolf does with fewer of them. It is also the first command that names an
 id, which gives the rule in
-[0007](../decisions/0007-state-leaves-as-a-snapshot-commands-go-in.md) that an
+[commands and snapshots](../adr/commands-and-snapshots.md) that an
 id which no longer resolves leaves the world unchanged a command to test it
 through.
 
 ## What it would touch
 
 One command type and its validation. On the page it pairs with selecting a
-creature, which arrives in roadmap entry 13, or with clicking a tile in entry 3.
+creature, which arrives in [inspecting creatures](../roadmap/inspecting-creatures.md), or with clicking a tile in [watching in a browser](../roadmap/watching-in-a-browser.md).
 
 ## Open questions
 

@@ -1,6 +1,7 @@
 # Skill review
 
-Status: idea.
+Status: built, [workflow](../adr/workflow.md). Every project skill was
+removed, since groundwork's baseline runs passed without them.
 
 ## What it does
 
@@ -52,7 +53,7 @@ out, as baseline runs that decide which skills the kit keeps.
 
 Every skill in `.claude/skills/` and its `evals/` scenario, `AGENTS.md`,
 `.claude/settings.json`, `tools/docs-check.py` and its tests, and a line in
-[0019](../decisions/0019-workflows-are-skills-and-invariants-are-scripts.md)
+[workflow](../adr/workflow.md)
 on what a project skill may hold.
 
 ## Open questions
