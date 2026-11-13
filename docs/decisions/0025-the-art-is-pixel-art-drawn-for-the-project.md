@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted, 2026-10-31. Revised 2026-11-01.
+Accepted, 2026-10-31. Revised 2026-11-04.
 
 ## Context
 
@@ -48,7 +48,10 @@ drifting patches, a low sun warming one corner, and both. A first autumn pass
 with amber and orange patches read as too strong, and the orange as ugly. The
 patches, in shades close to the ground's own green, won.
 
-A hop on the top row rose above the canvas and was cut off.
+A hop on the top row rose above the canvas and was cut off. A dimmed tile of
+meadow above the top row fixed that first. Once the page could zoom and pan, a
+world that overflows its view cut hops on every edge, and a strip above the top
+row alone looked like a mistake rather than more meadow.
 
 ## Decision
 
@@ -59,16 +62,19 @@ is built. How a sprite is drawn and turned into the page's PNGs is in
 
 A tile is 16 by 16 art pixels. A creature may be larger than its tile and
 overhang it, as the wolf does at 24 by 18, and a click still goes by the tile
-underneath. The page scales the art by whole numbers only, so every art pixel
-stays square and sharp.
+underneath. The page scales the art by whole numbers of the screen's device
+pixels, so every art pixel stays square and sharp on a screen scaled to 125% or
+150% and on a phone.
 
 The style is flat colour with a navy ink outline one pixel wide. Animals are
 drawn side-on, and grass and ground are a bright top-down meadow, with ground
 tiles in a few variants and tufts in a few shapes, each picked per tile. The
 meadow drifts through slow patches of lush green, the ground's own green, soft
 gold and straw, blended with an ordered dither so every pixel stays crisp. The
-patches are fixed, so the ground never shifts while a world plays. A dimmed tile
-of meadow above the top row keeps a creature hopping there in view.
+patches are fixed, so the ground never shifts while a world plays. The meadow
+continues past the world's edge on every side, dimmed, behind a thin border, so
+a creature hopping on an edge row stays in view and the world's end reads as
+part of the scene.
 
 A creature's markings come from its genes. Each gene is scaled by its range and
 measured from the species' baseline, and fixed blends of those values pick a

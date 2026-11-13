@@ -44,13 +44,22 @@ describe("the API client", () => {
         await expect(api.listWorlds()).rejects.toMatchObject({ status: 500 });
     });
 
-    test("creating without a seed sends no seed", async () => {
+    test("creating without a seed sends no seed, only the size", async () => {
         const calls: Call[] = [];
         const api = createApi(
             fakeFetch(Response.json({ id: "w", snapshot: {} }, { status: 201 }), calls),
         );
-        await api.createWorld(null);
-        expect(calls[0].init?.body).toBe("{}");
+        await api.createWorld(null, { width: 20, height: 20 });
+        expect(calls[0].init?.body).toBe('{"width":20,"height":20}');
+    });
+
+    test("creating with a size sends it beside the seed", async () => {
+        const calls: Call[] = [];
+        const api = createApi(
+            fakeFetch(Response.json({ id: "w", snapshot: {} }, { status: 201 }), calls),
+        );
+        await api.createWorld(42, { width: 10, height: 12 });
+        expect(calls[0].init?.body).toBe('{"seed":42,"width":10,"height":12}');
     });
 
     test("fetches each species' gene ranges, with the id escaped", async () => {

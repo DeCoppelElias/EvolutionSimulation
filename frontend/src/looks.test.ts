@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { lookOf } from "./looks";
+import { creatureLook, ghostLook, lookOf } from "./looks";
+import { marking } from "./markings";
 import sheet from "./sprites.json";
 
 const drawn = (spriteKey: string, frame: string, creature = true, id = 4) => ({
@@ -41,5 +42,49 @@ describe("a look", () => {
     test("is missing for a species with no art", () => {
         expect(lookOf(drawn("deer", "stand"), null)).toBeNull();
         expect(lookOf(drawn("mushroom", "stand", false), null)).toBeNull();
+    });
+});
+
+describe("a ghost", () => {
+    test("is a creature's standing look, unmarked", () => {
+        expect(ghostLook("rabbit")?.key).toBe("rabbit/stand/plain");
+    });
+
+    test("for ground cover is its first tuft", () => {
+        expect(ghostLook("grass")?.key).toBe("grass/0");
+    });
+
+    test("for a species with no art is none", () => {
+        expect(ghostLook("dragon")).toBeNull();
+    });
+});
+
+describe("a creature's own look", () => {
+    const ranges = [
+        { key: "speed", min: 0, max: 1, baseline: 0.5 },
+        { key: "viewRange", min: 1, max: 6, baseline: 3 },
+    ];
+    const rabbit = {
+        id: 14,
+        species: "rabbit",
+        spriteKey: "rabbit",
+        creature: true,
+        info: {},
+        genes: { speed: 0.9, viewRange: 1.5 },
+    };
+
+    test("stands in the markings its genes give it", () => {
+        const chosen = marking("rabbit", rabbit.genes, ranges);
+        const key = `rabbit/stand/${chosen.colour}.${chosen.extent}.${chosen.accent}`;
+        expect(creatureLook(rabbit, { rabbit: ranges })?.key).toBe(key);
+    });
+
+    test("is unmarked until the gene ranges arrive", () => {
+        expect(creatureLook(rabbit, null)?.key).toBe("rabbit/stand/plain");
+    });
+
+    test("for grass is its tuft", () => {
+        const grass = { ...rabbit, id: 5, species: "grass", spriteKey: "grass", creature: false };
+        expect(creatureLook(grass, { rabbit: ranges })?.key).toBe("grass/2");
     });
 });

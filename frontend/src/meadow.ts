@@ -1,12 +1,13 @@
 import type { Pixels } from "./pixels";
-import { ART_TILE, HEADROOM } from "./scale";
+import { ART_TILE } from "./scale";
 import sheet from "./sprites.json";
 import { groundVariant } from "./tiles";
 
 const SHADES = sheet.ground.shades.length;
 /** A patch of lush or dry grass spans about this many art pixels. */
 const PATCH = 72;
-const HEADROOM_DIM = 0.35;
+/** How much darker the meadow past the world's edge is. */
+const SURROUND_DIM = 0.35;
 const BAYER = [
     [0, 8, 2, 10],
     [12, 4, 14, 6],
@@ -28,25 +29,34 @@ export function shadeAt(px: number, py: number): number {
     return dithered(0.4 + patches * (SHADES - 1.2), px, py);
 }
 
-/** The ground for a world, plus a tile of dimmed headroom above it. */
+/** The ground under a world. */
 export function meadow(width: number, height: number): Pixels {
+    return paint(width, height, 1, shadeAt);
+}
+
+/** A square of dimmed meadow without patches, repeated around the world to show the ground goes on. */
+export function surround(tiles: number): Pixels {
+    const middle = (SHADES - 1) / 2;
+    return paint(tiles, tiles, 1 - SURROUND_DIM, (px, py) => dithered(middle, px, py));
+}
+
+function paint(
+    width: number,
+    height: number,
+    dim: number,
+    shadeOf: (px: number, py: number) => number,
+): Pixels {
     const widthPx = width * ART_TILE;
     const heightPx = height * ART_TILE;
-    const totalHeight = heightPx + HEADROOM;
-    const data = new Uint8ClampedArray(new ArrayBuffer(widthPx * totalHeight * 4));
+    const data = new Uint8ClampedArray(new ArrayBuffer(widthPx * heightPx * 4));
     const shades = sheet.ground.shades.map((shade) =>
         Object.fromEntries(Object.entries(shade).map(([letter, hex]) => [letter, rgb(hex)])),
     );
-    for (let y = 0; y < totalHeight; y++) {
-        const worldY = y - HEADROOM;
-        const tileY = Math.floor(worldY / ART_TILE);
+    for (let y = 0; y < heightPx; y++) {
+        const tileY = Math.floor(y / ART_TILE);
         for (let x = 0; x < widthPx; x++) {
-            const tileX = Math.floor(x / ART_TILE);
-            const grid = sheet.ground.tiles[groundVariant(tileX, tileY)];
-            const letter = grid[((worldY % ART_TILE) + ART_TILE) % ART_TILE][x % ART_TILE];
-            const shade = shadeAt(x, Math.max(0, worldY));
-            const colour = shades[shade][letter];
-            const dim = worldY < 0 ? 1 - HEADROOM_DIM : 1;
+            const grid = sheet.ground.tiles[groundVariant(Math.floor(x / ART_TILE), tileY)];
+            const colour = shades[shadeOf(x, y)][grid[y % ART_TILE][x % ART_TILE]];
             const at = (y * widthPx + x) * 4;
             data[at] = colour[0] * dim;
             data[at + 1] = colour[1] * dim;
@@ -54,7 +64,7 @@ export function meadow(width: number, height: number): Pixels {
             data[at + 3] = 255;
         }
     }
-    return { width: widthPx, height: totalHeight, data };
+    return { width: widthPx, height: heightPx, data };
 }
 
 function rgb(hex: string): [number, number, number] {

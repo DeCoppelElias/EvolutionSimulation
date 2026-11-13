@@ -100,3 +100,5 @@ that settled it.
   restart.
 - [World size on the page](world-size-on-the-page.md) choosing a world's width
   and height on the create screen.
+- [World thumbnails](world-thumbnails.md) a small drawing of each world on
+  the picker.

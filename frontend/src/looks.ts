@@ -1,8 +1,9 @@
-import { markedPalette, type Marking, type Marks } from "./markings";
+import { marking, markedPalette, type Marking, type Marks } from "./markings";
 import type { Drawn } from "./motion";
 import type { Palette } from "./pixels";
 import sheet from "./sprites.json";
 import { tuftOf } from "./tiles";
+import type { EntityView, GeneRanges } from "./types";
 
 /** What a sprite is drawn from, and the key its texture is cached under. */
 export type Look = { key: string; grid: readonly string[]; palette: Palette };
@@ -40,4 +41,23 @@ export function lookOf(
         grid,
         palette: chosen === null ? kind.palette : markedPalette(kind, chosen),
     };
+}
+
+/** What Place shows under the cursor, and the picker beside a count. */
+export function ghostLook(spriteKey: string): Look | null {
+    const shown = { id: 0, spriteKey, frame: "stand" };
+    return (
+        lookOf({ ...shown, creature: true }, null) ?? lookOf({ ...shown, creature: false }, null)
+    );
+}
+
+/** How the Inspector shows a creature: standing, in the markings its genes give it on the grid. */
+export function creatureLook(entity: EntityView, ranges: GeneRanges | null): Look | null {
+    const own = ranges?.[entity.species];
+    const chosen =
+        entity.creature && own !== undefined ? marking(entity.species, entity.genes, own) : null;
+    return lookOf(
+        { id: entity.id, spriteKey: entity.spriteKey, creature: entity.creature, frame: "stand" },
+        chosen,
+    );
 }

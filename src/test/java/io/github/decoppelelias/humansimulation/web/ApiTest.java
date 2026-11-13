@@ -149,6 +149,27 @@ class ApiTest {
         assertThat(client.get("/worlds").status()).isEqualTo(200);
     }
 
+    /**
+     * The reproducible jar gives every build's page the same date and length, so a revalidated
+     * copy would always look current and point at the previous build's scripts.
+     */
+    @Test
+    void thePageIsNeverCached() {
+        for (String path : List.of("/", "/?world=abc", "/index.html")) {
+            HttpTestClient.Response page = client.get(path);
+            assertThat(page.status()).as(path).isEqualTo(200);
+            assertThat(page.headers().allValues("Cache-Control")).as(path).containsExactly("no-store");
+        }
+    }
+
+    @Test
+    void anAssetNamedForItsContentStaysCacheable() {
+        HttpTestClient.Response asset = client.get("/assets/page-AbCd1234.js");
+        assertThat(asset.status()).isEqualTo(200);
+        assertThat(asset.body()).contains("test asset");
+        assertThat(asset.headers().allValues("Cache-Control")).doesNotContain("no-store");
+    }
+
     @Test
     void unknownWorldIs404() {
         HttpTestClient.Response response = client.get("/worlds/nope");

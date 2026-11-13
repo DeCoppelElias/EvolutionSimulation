@@ -1,6 +1,6 @@
 # World size on the page
 
-Status: idea.
+Status: built, [0020](../decisions/0020-the-interface-is-a-web-page.md).
 
 ## What it does
 
@@ -24,5 +24,7 @@ settings panel is not involved, and a reset keeps the size.
 
 ## Open questions
 
-The largest size the page allows before a world stops being readable on
-screen, and whether a reset should be able to change the size.
+None left. Entry 15's grill set the range at 5 to 25, since 5 by 5 is the
+smallest the starting 10 rabbits and 7 grass fit with room and zoom and pan make
+25 readable. A reset keeps the size, since resizing would change the domain and
+the replay log for a world that shares nothing with the old one.

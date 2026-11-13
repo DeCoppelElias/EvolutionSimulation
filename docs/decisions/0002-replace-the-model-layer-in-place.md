@@ -102,7 +102,7 @@ so nobody restores it thinking it went missing, as the 2022 food contest has.
 
 Each package is a live test of the claim in `DESIGN.md`.
 
-The first sprites come from free asset packs, until roadmap entry 14 replaces
+The first sprites came from free asset packs, and roadmap entry 14 replaced
 them with art drawn for the project, per
 [0025](0025-the-art-is-pixel-art-drawn-for-the-project.md). The
 project keeps its name while its first species is not a human, and humans wait

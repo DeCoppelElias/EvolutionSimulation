@@ -3,6 +3,7 @@ package io.github.decoppelelias.humansimulation.web;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import tools.jackson.databind.JsonNode;
@@ -11,7 +12,7 @@ import tools.jackson.databind.json.JsonMapper;
 final class HttpTestClient {
     private static final JsonMapper MAPPER = JsonMapper.builder().build();
 
-    record Response(int status, String body) {
+    record Response(int status, String body, HttpHeaders headers) {
         JsonNode json() {
             return MAPPER.readTree(body);
         }
@@ -55,7 +56,7 @@ final class HttpTestClient {
     private Response send(HttpRequest.Builder request) {
         try {
             HttpResponse<String> response = http.send(request.build(), HttpResponse.BodyHandlers.ofString());
-            return new Response(response.statusCode(), response.body());
+            return new Response(response.statusCode(), response.body(), response.headers());
         } catch (IOException e) {
             throw new IllegalStateException(e);
         } catch (InterruptedException e) {

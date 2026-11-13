@@ -1,10 +1,17 @@
 import { Fragment } from "react";
 import { formatValue, goneMessage, label, type Picked, type Resolved } from "./inspect";
-import type { EntityView } from "./types";
+import { creatureLook } from "./looks";
+import { LookIcon } from "./SpriteIcon";
+import type { EntityView, GeneRanges } from "./types";
 
-type Props = { resolved: Resolved; tile: EntityView[]; onPick(picked: Picked): void };
+type Props = {
+    resolved: Resolved;
+    tile: EntityView[];
+    genes: GeneRanges | null;
+    onPick(picked: Picked): void;
+};
 
-export function Inspector({ resolved, tile, onPick }: Props) {
+export function Inspector({ resolved, tile, genes, onPick }: Props) {
     return (
         <section className="inspector">
             {tile.length > 1 && (
@@ -20,18 +27,24 @@ export function Inspector({ resolved, tile, onPick }: Props) {
                     ))}
                 </ul>
             )}
+            {resolved.kind === "none" && tile.length <= 1 && (
+                <p className="hint">Click a creature to inspect it.</p>
+            )}
             {resolved.kind === "gone" && <p>{goneMessage(resolved.picked)}</p>}
-            {resolved.kind === "alive" && <Details entity={resolved.entity} />}
+            {resolved.kind === "alive" && <Details entity={resolved.entity} genes={genes} />}
         </section>
     );
 }
 
-function Details({ entity }: { entity: EntityView }) {
+function Details({ entity, genes }: { entity: EntityView; genes: GeneRanges | null }) {
     return (
         <div>
-            <h3>
-                {entity.species} {entity.id}
-            </h3>
+            <div className="portrait">
+                <LookIcon look={creatureLook(entity, genes)} scale={3} className="portrait-art" />
+                <h3>
+                    {entity.species} {entity.id}
+                </h3>
+            </div>
             <Values values={entity.info} named={label} />
             {Object.keys(entity.genes).length > 0 && (
                 <>
