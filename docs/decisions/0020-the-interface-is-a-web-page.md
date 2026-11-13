@@ -135,7 +135,7 @@ at some zoom sizes.
 ## Decision
 
 The core stays Java and depends only on `java.base`. Everything lives under
-`io.github.decoppelelias.humansimulation`, with the domain in `.domain`.
+`io.github.decoppelelias.evolutionsimulation`, with the domain in `.domain`.
 
 The interface is a web page. A Javalin adapter serves it, takes commands as
 JSON over HTTP, and streams each world's snapshots and census rows over

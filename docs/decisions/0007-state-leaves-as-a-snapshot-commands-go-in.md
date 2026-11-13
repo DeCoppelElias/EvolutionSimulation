@@ -100,7 +100,7 @@ generality this one simulation does not need.
 ## Decision
 
 The core is the domain of a hexagonal architecture and lives in the package
-`io.github.decoppelelias.humansimulation.domain`. It depends on nothing but
+`io.github.decoppelelias.evolutionsimulation.domain`. It depends on nothing but
 itself and `java.base`: no web framework, no JSON library, no AWT and no adapter
 package. No simulation rule lives outside it.
 

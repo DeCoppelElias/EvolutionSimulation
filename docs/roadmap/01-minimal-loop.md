@@ -11,7 +11,7 @@ AssertJ and picocli, per
 [0022](../decisions/0022-warnings-fail-the-build-and-nothing-is-null.md). The
 README is replaced with a short one saying what the project is becoming, how to
 build it and how to use `run`. `AGENTS.md` follows the tree from then on.
-Everything new lives under `io.github.decoppelelias.humansimulation`, with the
+Everything new lives under `io.github.decoppelelias.evolutionsimulation`, with the
 domain as one flat package, `run` in `.cli` and `Main` at the root, per
 [0007](../decisions/0007-state-leaves-as-a-snapshot-commands-go-in.md).
 

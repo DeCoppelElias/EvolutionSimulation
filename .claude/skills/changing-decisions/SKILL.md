@@ -1,6 +1,6 @@
 ---
 name: changing-decisions
-description: Rewrites a HumanSimulation design decision in docs/decisions/ in place and carries the change through DESIGN.md, the roadmap and the ideas. Use when Elias changes a settled choice, when a new design question comes up, when implementation forces a choice the log did not make, or when asked to "update the docs" for a design change.
+description: Rewrites an EvolutionSimulation design decision in docs/decisions/ in place and carries the change through DESIGN.md, the roadmap and the ideas. Use when Elias changes a settled choice, when a new design question comes up, when implementation forces a choice the log did not make, or when asked to "update the docs" for a design change.
 ---
 
 # Changing decisions

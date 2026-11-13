@@ -1,6 +1,6 @@
 ---
 name: promoting-ideas
-description: Moves a HumanSimulation idea from docs/ideas/ onto the roadmap and into the decision log. Use when Elias says to adopt, plan or schedule an idea, to "add it to the roadmap" or "make it part of the plan", or when a roadmap entry is about to build something that only exists as an idea.
+description: Moves an EvolutionSimulation idea from docs/ideas/ onto the roadmap and into the decision log. Use when Elias says to adopt, plan or schedule an idea, to "add it to the roadmap" or "make it part of the plan", or when a roadmap entry is about to build something that only exists as an idea.
 ---
 
 # Promoting ideas
