@@ -40,9 +40,17 @@ public final class Api {
             // A jar built with -Pskip-frontend has no page and serves the API alone.
             if (Api.class.getResource("/public/index.html") != null) {
                 config.staticFiles.add(files -> {
+                    files.hostedPath = "/assets";
+                    files.directory = "/public/assets";
+                    files.location = Location.CLASSPATH;
+                });
+                // Every build stamps the page with one date and gives it one length, so a
+                // revalidated copy always matches and names the previous build's assets.
+                config.staticFiles.add(files -> {
                     files.hostedPath = "/";
                     files.directory = "/public";
                     files.location = Location.CLASSPATH;
+                    files.headers = Map.of("Cache-Control", "no-store");
                 });
             }
             config.jsonMapper(new JavalinJackson3(mapper, false));
