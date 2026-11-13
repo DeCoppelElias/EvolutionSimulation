@@ -1,4 +1,4 @@
-# HumanSimulation design
+# EvolutionSimulation design
 
 The decision log in `docs/decisions/` holds the reasoning behind everything
 here, the alternatives that lost, and the concrete type shapes this file leaves
@@ -10,7 +10,7 @@ The model layer is being rebuilt, so the tree does not match this file yet.
 
 ## Vision
 
-HumanSimulation is a world you watch evolve. Creatures look for food, breed, and
+EvolutionSimulation is a world you watch evolve. Creatures look for food, breed, and
 pass varied behaviour to their children, so over a few hundred days the
 population drifts toward whatever happens to work.
 
@@ -325,7 +325,7 @@ resetting the statistics is something an adapter does to its own history and
 not a command. A world reset starts the history afresh, since its days start
 again at 0.
 
-The core lives in the package `io.github.decoppelelias.humansimulation.domain`
+The core lives in the package `io.github.decoppelelias.evolutionsimulation.domain`
 and depends only on itself and `java.base`. A test runs `jdeps` over the
 compiled classes and fails on anything else. The package is flat. The world,
 what builds it and the values crossing the boundary are public and the rest is

@@ -1,5 +1,5 @@
 export type Theme = "light" | "dark";
-export const THEME_KEY = "humansimulation.theme";
+export const THEME_KEY = "evolutionsimulation.theme";
 
 export function storedTheme(raw: string | null): Theme | null {
     return raw === "light" || raw === "dark" ? raw : null;

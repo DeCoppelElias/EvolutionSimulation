@@ -1,6 +1,6 @@
 ---
 name: auditing-docs
-description: Checks HumanSimulation's DESIGN.md, decision log, roadmap, ideas and AGENTS.md for contradictions and drift, and routes each finding to whoever may fix it. Use before starting a roadmap entry, after changing a decision or promoting an idea, or when asked whether the docs are consistent.
+description: Checks EvolutionSimulation's DESIGN.md, decision log, roadmap, ideas and AGENTS.md for contradictions and drift, and routes each finding to whoever may fix it. Use before starting a roadmap entry, after changing a decision or promoting an idea, or when asked whether the docs are consistent.
 ---
 
 # Auditing docs

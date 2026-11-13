@@ -1,6 +1,6 @@
 ---
 name: implementing-roadmap-entries
-description: Takes a HumanSimulation roadmap entry from first read to finished and merged, wiring the superpowers planning, TDD, review and branch skills to this project's docs. Use when starting, resuming or finishing an entry in docs/roadmap/, or when told to "ship", "wrap up" or "merge" roadmap work.
+description: Takes an EvolutionSimulation roadmap entry from first read to finished and merged, wiring the superpowers planning, TDD, review and branch skills to this project's docs. Use when starting, resuming or finishing an entry in docs/roadmap/, or when told to "ship", "wrap up" or "merge" roadmap work.
 ---
 
 # Implementing roadmap entries

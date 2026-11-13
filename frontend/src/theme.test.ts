@@ -24,6 +24,6 @@ describe("the theme", () => {
     });
 
     test("is stored under one key", () => {
-        expect(THEME_KEY).toBe("humansimulation.theme");
+        expect(THEME_KEY).toBe("evolutionsimulation.theme");
     });
 });

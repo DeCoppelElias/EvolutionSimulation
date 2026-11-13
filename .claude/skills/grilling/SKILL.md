@@ -1,6 +1,6 @@
 ---
 name: grilling
-description: Interviews Elias one question at a time, each with a recommendation, until every choice a HumanSimulation roadmap entry or idea leaves open is settled, and flags gaps in the docs and workflows on the way. Use before planning a roadmap entry, before promoting an idea, or when Elias asks to be grilled or to "work out the details".
+description: Interviews Elias one question at a time, each with a recommendation, until every choice an EvolutionSimulation roadmap entry or idea leaves open is settled, and flags gaps in the docs and workflows on the way. Use before planning a roadmap entry, before promoting an idea, or when Elias asks to be grilled or to "work out the details".
 ---
 
 # Grilling

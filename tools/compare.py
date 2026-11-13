@@ -24,7 +24,7 @@ from pathlib import Path
 
 # A mean of identical genes can come out a few ulps off them.
 ROUNDING = 1e-9
-DEFAULT_JAR = Path(__file__).resolve().parent.parent / "target" / "HumanSimulation.jar"
+DEFAULT_JAR = Path(__file__).resolve().parent.parent / "target" / "EvolutionSimulation.jar"
 
 
 def parse_seeds(text):

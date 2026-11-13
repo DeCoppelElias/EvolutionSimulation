@@ -84,7 +84,7 @@ the same jar, and CI runs the tool's tests.
 
 ## Layout
 
-- `src/main/java/io/github/decoppelelias/humansimulation/` `Main` at the root,
+- `src/main/java/io/github/decoppelelias/evolutionsimulation/` `Main` at the root,
   `domain/` the model, one flat package with the public `World` and the values
   that cross its boundary, `web/` the Javalin API that `serve` starts, and
   `cli/` the picocli `run` and `serve` commands.
@@ -100,8 +100,8 @@ the same jar, and CI runs the tool's tests.
 ## Build and run
 
     ./mvnw verify     compile, check formatting, run tests
-    ./mvnw package    also build target/HumanSimulation.jar
-    java -jar target/HumanSimulation.jar run --seed 42 --days 100
+    ./mvnw package    also build target/EvolutionSimulation.jar
+    java -jar target/EvolutionSimulation.jar run --seed 42 --days 100
     ./mvnw verify -Pskip-frontend    Java only, no page in the jar
     ./mvnw frontend:npm "-Dfrontend.npm.arguments=run format"    format the frontend
     ./mvnw frontend:npm "-Dfrontend.npm.arguments=run dev"       Vite with hot reload, beside a running serve

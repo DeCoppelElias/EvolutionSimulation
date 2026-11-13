@@ -1,0 +1,37 @@
+package io.github.decoppelelias.evolutionsimulation.domain;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.random.RandomGenerator;
+
+interface Brain extends Component {
+    record NoView() {}
+
+    Intent decide(Perception perception, Options options, RandomGenerator random);
+
+    @Override
+    default Class<? extends Component> key() {
+        return Brain.class;
+    }
+
+    @Override
+    default Record ownView() {
+        return new NoView();
+    }
+
+    @Override
+    default Optional<Record> seenView() {
+        return Optional.empty();
+    }
+
+    @Override
+    default List<Feature> features() {
+        return List.of();
+    }
+
+    @Override
+    default Map<String, Double> shown() {
+        return Map.of();
+    }
+}

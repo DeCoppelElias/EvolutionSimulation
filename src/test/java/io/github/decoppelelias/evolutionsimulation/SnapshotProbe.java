@@ -1,0 +1,39 @@
+package io.github.decoppelelias.evolutionsimulation;
+
+import io.github.decoppelelias.evolutionsimulation.domain.Command;
+import io.github.decoppelelias.evolutionsimulation.domain.FoodDrop;
+import io.github.decoppelelias.evolutionsimulation.domain.Grass;
+import io.github.decoppelelias.evolutionsimulation.domain.Rabbit;
+import io.github.decoppelelias.evolutionsimulation.domain.World;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Prints every day's whole snapshot, which a census of rabbit counts alone cannot tell apart, through a run that edits
+ * a setting and restores the defaults.
+ */
+public final class SnapshotProbe {
+    private SnapshotProbe() {}
+
+    public static void main(String[] args) {
+        World world = new World(
+                20,
+                20,
+                Long.parseLong(args[0]),
+                List.of(Grass.species(), Rabbit.species()),
+                List.of(new FoodDrop("grass")));
+        world.submit(new Command.Spawn("rabbit", 10));
+        world.submit(new Command.Spawn("grass", 10));
+        StringBuilder out = new StringBuilder();
+        for (int day = 0; day < Integer.parseInt(args[1]); day++) {
+            if (day == 40) {
+                world.submit(new Command.SetSetting("rabbit", "breedingLoss", 20));
+            }
+            if (day == 80) {
+                world.submit(new Command.RestoreDefaults(Optional.empty(), Optional.empty()));
+            }
+            out.append(world.advance().snapshot()).append('\n');
+        }
+        System.out.print(out);
+    }
+}

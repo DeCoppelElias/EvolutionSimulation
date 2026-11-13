@@ -1,0 +1,614 @@
+package io.github.decoppelelias.evolutionsimulation.web;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import io.github.decoppelelias.evolutionsimulation.domain.FoodDrop;
+import io.github.decoppelelias.evolutionsimulation.domain.Grass;
+import io.github.decoppelelias.evolutionsimulation.domain.Rabbit;
+import io.javalin.Javalin;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+
+class ApiTest {
+    private record OpenStream(List<String> lines, CompletableFuture<Void> ended, Stream<String> body) {}
+
+    private Worlds worlds;
+    private Javalin app;
+    private HttpTestClient client;
+
+    @BeforeEach
+    void start() {
+        worlds = new Worlds(3, List.of(Rabbit.species(), Grass.species()), List.of(new FoodDrop("grass")));
+        IdleWatch idle = new IdleWatch(Duration.ZERO, System::nanoTime, () -> {});
+        app = Api.create(worlds, idle, Duration.ofMillis(200), System::nanoTime).start("127.0.0.1", 0);
+        client = new HttpTestClient(app.port());
+    }
+
+    @AfterEach
+    void stop() {
+        worlds.closeAll();
+        app.stop();
+    }
+
+    @Test
+    void anEmptyServerListsNoWorlds() {
+        HttpTestClient.Response response = client.get("/worlds");
+        assertThat(response.status()).isEqualTo(200);
+        assertThat(response.json().isArray()).isTrue();
+        assertThat(response.json().size()).isZero();
+    }
+
+    @Test
+    void createsAnEmptyPausedWorldWithDefaults() {
+        HttpTestClient.Response created = client.post("/worlds", "");
+        assertThat(created.status()).isEqualTo(201);
+        JsonNode body = created.json();
+        String id = body.get("id").asString();
+        assertThat(id).matches("[0-9a-f]{32}");
+        assertThat(body.get("snapshot").get("width").asInt()).isEqualTo(20);
+        assertThat(body.get("snapshot").get("height").asInt()).isEqualTo(20);
+        assertThat(body.get("snapshot").get("day").asInt()).isZero();
+        assertThat(client.get("/worlds/" + id).json().findValues("spriteKey")).isEmpty();
+        assertThat(client.get("/worlds").json().get(0).get("playing").asBoolean())
+                .isFalse();
+    }
+
+    @Test
+    void aSnapshotNamesItsSpeciesAndMarksCreatures() {
+        String id = newWorld();
+        JsonNode snapshot = command(id, "{\"type\":\"spawn\",\"species\":\"rabbit\",\"count\":1}")
+                .json();
+        assertThat(snapshot.get("species").get(0).asString()).isEqualTo("grass");
+        assertThat(snapshot.get("species").get(1).asString()).isEqualTo("rabbit");
+        assertThat(snapshot.findValues("creature"))
+                .singleElement()
+                .satisfies(flag -> assertThat(flag.asBoolean()).isTrue());
+    }
+
+    @Test
+    void aSnapshotCarriesWhatAPersonSees() {
+        String id = newWorld();
+        command(id, "{\"type\":\"spawn\",\"species\":\"rabbit\",\"count\":1}");
+        client.post("/worlds/" + id + "/step", "{\"days\":1}");
+        JsonNode rabbit = client.get("/worlds/" + id).json().findValues("entities").stream()
+                .flatMap(JsonNode::valueStream)
+                .filter(entity -> entity.get("species").asString().equals("rabbit"))
+                .findFirst()
+                .orElseThrow();
+        JsonNode info = rabbit.get("info");
+        assertThat(info.get("age").asDouble()).isEqualTo(1.0);
+        assertThat(info.has("reserve")).isTrue();
+        assertThat(info.has("daysToStarve")).isTrue();
+        assertThat(info.has("daysToLive")).isFalse();
+    }
+
+    @Test
+    void createTakesASizeAndASeed() {
+        JsonNode snapshot = client.post("/worlds", "{\"width\":5,\"height\":4,\"seed\":42}")
+                .json()
+                .get("snapshot");
+        assertThat(snapshot.get("width").asInt()).isEqualTo(5);
+        assertThat(snapshot.get("height").asInt()).isEqualTo(4);
+        assertThat(snapshot.get("seed").asLong()).isEqualTo(42);
+    }
+
+    @Test
+    void aSeedBeyondTwoToThe53Is400() {
+        assertThat(client.post("/worlds", "{\"seed\":9007199254740992}").status())
+                .isEqualTo(400);
+        assertThat(client.post("/worlds", "{\"seed\":-9007199254740992}").status())
+                .isEqualTo(400);
+        assertThat(client.post("/worlds", "{\"seed\":9007199254740991}").status())
+                .isEqualTo(201);
+        String id = newWorld();
+        assertThat(command(id, "{\"type\":\"reset\",\"seed\":9007199254740992}").status())
+                .isEqualTo(400);
+    }
+
+    @Test
+    void rejectsASideAbove25() {
+        HttpTestClient.Response response = client.post("/worlds", "{\"width\":26}");
+        assertThat(response.status()).isEqualTo(400);
+        assertThat(response.json().get("error").asString()).contains("25");
+    }
+
+    @Test
+    void refusesPastTheCap() {
+        for (int i = 0; i < 3; i++) {
+            assertThat(client.post("/worlds", "").status()).isEqualTo(201);
+        }
+        HttpTestClient.Response refused = client.post("/worlds", "");
+        assertThat(refused.status()).isEqualTo(409);
+        assertThat(refused.json().get("error").asString()).contains("3");
+    }
+
+    @Test
+    void listsWorldsInTheOrderTheyWereCreated() {
+        String first = newWorld();
+        String second = newWorld();
+        assertThat(client.get("/worlds").json().findValuesAsString("id")).containsExactly(first, second);
+    }
+
+    @Test
+    void servesThePageAtTheRoot() {
+        HttpTestClient.Response page = client.get("/?world=abc");
+        assertThat(page.status()).isEqualTo(200);
+        assertThat(page.body()).contains("<title>test page</title>");
+        assertThat(client.get("/worlds").status()).isEqualTo(200);
+    }
+
+    /**
+     * The reproducible jar gives every build's page the same date and length, so a revalidated
+     * copy would always look current and point at the previous build's scripts.
+     */
+    @Test
+    void thePageIsNeverCached() {
+        for (String path : List.of("/", "/?world=abc", "/index.html")) {
+            HttpTestClient.Response page = client.get(path);
+            assertThat(page.status()).as(path).isEqualTo(200);
+            assertThat(page.headers().allValues("Cache-Control")).as(path).containsExactly("no-store");
+        }
+    }
+
+    @Test
+    void anAssetNamedForItsContentStaysCacheable() {
+        HttpTestClient.Response asset = client.get("/assets/page-AbCd1234.js");
+        assertThat(asset.status()).isEqualTo(200);
+        assertThat(asset.body()).contains("test asset");
+        assertThat(asset.headers().allValues("Cache-Control")).doesNotContain("no-store");
+    }
+
+    @Test
+    void unknownWorldIs404() {
+        HttpTestClient.Response response = client.get("/worlds/nope");
+        assertThat(response.status()).isEqualTo(404);
+        assertThat(response.json().get("error").asString()).contains("nope");
+    }
+
+    @Test
+    void deleteClosesIt() {
+        String id = newWorld();
+        assertThat(client.delete("/worlds/" + id).status()).isEqualTo(204);
+        assertThat(client.get("/worlds/" + id).status()).isEqualTo(404);
+    }
+
+    @Test
+    void aCommandOnAPausedWorldAppliesAtOnce() {
+        String id = newWorld();
+        HttpTestClient.Response response = spawn(id, 3);
+        assertThat(response.status()).isEqualTo(200);
+        assertThat(response.json().findValues("spriteKey")).hasSize(3);
+    }
+
+    @Test
+    void aBadCommandIs400() {
+        String id = newWorld();
+        assertThat(command(id, "{\"type\":\"spawn\",\"species\":\"wolf\",\"count\":1}")
+                        .status())
+                .isEqualTo(400);
+        assertThat(command(id, "{\"type\":\"fly\"}").status()).isEqualTo(400);
+        assertThat(command(id, "{\"type\":\"spawn\",\"species\":\"rabbit\"}").status())
+                .isEqualTo(400);
+        assertThat(command(id, "{\"species\":\"rabbit\",\"count\":1}").status()).isEqualTo(400);
+        HttpTestClient.Response unreadable = command(id, "not json");
+        assertThat(unreadable.status()).isEqualTo(400);
+        assertThat(unreadable.json().has("error")).isTrue();
+    }
+
+    @Test
+    void stepAdvancesManyDaysAndKeepsEveryRow() {
+        String id = newWorld();
+        spawn(id, 5);
+        HttpTestClient.Response report = client.post("/worlds/" + id + "/step", "{\"days\":500}");
+        assertThat(report.status()).isEqualTo(200);
+        assertThat(report.json().get("census").get("day").asInt()).isEqualTo(500);
+        JsonNode census = client.get("/worlds/" + id + "/census").json();
+        assertThat(census.size()).isEqualTo(500);
+        assertThat(census.get(499).get("day").asInt()).isEqualTo(500);
+        assertThat(client.post("/worlds/" + id + "/step", "")
+                        .json()
+                        .get("census")
+                        .get("day")
+                        .asInt())
+                .isEqualTo(501);
+    }
+
+    /** Grass drops every seven days, so in 30 days some is eaten or withers. */
+    @Test
+    void censusRowsCarryTheDaysDeaths() {
+        String id = newWorld();
+        spawn(id, 5);
+        client.post("/worlds/" + id + "/step", "{\"days\":30}");
+        JsonNode census = client.get("/worlds/" + id + "/census").json();
+        assertThat(census.get(0).get("deaths").isObject()).isTrue();
+        assertThat(census.valueStream().anyMatch(row -> row.get("deaths").has("grass")))
+                .isTrue();
+    }
+
+    @Test
+    void stepRejectsDaysOutsideItsRange() {
+        String id = newWorld();
+        assertThat(client.post("/worlds/" + id + "/step", "{\"days\":0}").status())
+                .isEqualTo(400);
+        assertThat(client.post("/worlds/" + id + "/step", "{\"days\":10001}").status())
+                .isEqualTo(400);
+    }
+
+    @Test
+    void playAdvancesAndPauseStops() throws InterruptedException {
+        String id = newWorld();
+        client.put("/worlds/" + id + "/rate", "{\"daysPerSecond\":10}");
+        assertThat(client.post("/worlds/" + id + "/play", "")
+                        .json()
+                        .get("playing")
+                        .asBoolean())
+                .isTrue();
+        long deadline = System.nanoTime() + 3_000_000_000L;
+        while (day(id) < 3 && System.nanoTime() < deadline) {
+            Thread.sleep(50);
+        }
+        assertThat(client.post("/worlds/" + id + "/pause", "")
+                        .json()
+                        .get("playing")
+                        .asBoolean())
+                .isFalse();
+        int paused = day(id);
+        assertThat(paused).isGreaterThanOrEqualTo(3);
+        Thread.sleep(400);
+        assertThat(day(id)).isEqualTo(paused);
+    }
+
+    @Test
+    void aPlayingWorldTakesCommandsForTheNextDayAndRefusesSteps() {
+        String id = newWorld();
+        client.post("/worlds/" + id + "/play", "");
+        assertThat(spawn(id, 2).status()).isEqualTo(202);
+        assertThat(client.post("/worlds/" + id + "/step", "").status()).isEqualTo(409);
+        client.post("/worlds/" + id + "/pause", "");
+    }
+
+    @Test
+    void rateOutsideItsRangeIs400() {
+        String id = newWorld();
+        assertThat(client.put("/worlds/" + id + "/rate", "{\"daysPerSecond\":0.4}")
+                        .status())
+                .isEqualTo(400);
+        assertThat(client.put("/worlds/" + id + "/rate", "{\"daysPerSecond\":10.5}")
+                        .status())
+                .isEqualTo(400);
+        assertThat(client.put("/worlds/" + id + "/rate", "{\"daysPerSecond\":5}")
+                        .json()
+                        .get("daysPerSecond")
+                        .asDouble())
+                .isEqualTo(5.0);
+    }
+
+    @Test
+    void censusFromSkipsEarlierDays() {
+        String id = newWorld();
+        client.post("/worlds/" + id + "/step", "{\"days\":10}");
+        assertThat(days(client.get("/worlds/" + id + "/census?from=8").json())).containsExactly(8, 9, 10);
+    }
+
+    @Test
+    void resettingTheStatisticsKeepsTheHistoryWorking() {
+        String id = newWorld();
+        client.post("/worlds/" + id + "/step", "{\"days\":5}");
+        assertThat(client.delete("/worlds/" + id + "/census").status()).isEqualTo(204);
+        assertThat(client.get("/worlds/" + id + "/census").json().size()).isZero();
+        client.post("/worlds/" + id + "/step", "{\"days\":3}");
+        assertThat(days(client.get("/worlds/" + id + "/census").json())).containsExactly(6, 7, 8);
+    }
+
+    @Test
+    void aResetCommandStartsTheHistoryAgain() {
+        String id = newWorld();
+        client.post("/worlds/" + id + "/step", "{\"days\":5}");
+        JsonNode snapshot = command(id, "{\"type\":\"reset\",\"seed\":7}").json();
+        assertThat(snapshot.get("day").asInt()).isZero();
+        assertThat(snapshot.get("seed").asLong()).isEqualTo(7);
+        assertThat(client.get("/worlds/" + id + "/census").json().size()).isZero();
+        client.post("/worlds/" + id + "/step", "{\"days\":2}");
+        assertThat(days(client.get("/worlds/" + id + "/census").json())).containsExactly(1, 2);
+    }
+
+    @Test
+    void theLogReplaysOverHttp() {
+        String original = newWorld();
+        spawn(original, 4);
+        client.post("/worlds/" + original + "/step", "{\"days\":7}");
+        command(original, "{\"type\":\"spawnAt\",\"species\":\"rabbit\",\"at\":{\"x\":2,\"y\":3}}");
+        client.post("/worlds/" + original + "/step", "{\"days\":5}");
+        JsonNode log = client.get("/worlds/" + original + "/log").json();
+
+        String copy = client.post(
+                        "/worlds",
+                        "{\"width\":" + log.get("width").asInt() + ",\"height\":"
+                                + log.get("height").asInt() + ",\"seed\":"
+                                + log.get("seed").asLong() + "}")
+                .json()
+                .get("id")
+                .asString();
+        int day = 0;
+        for (JsonNode entry : log.get("commands")) {
+            int target = entry.get("day").asInt();
+            if (target > day) {
+                client.post("/worlds/" + copy + "/step", "{\"days\":" + (target - day) + "}");
+                day = target;
+            }
+            command(copy, entry.get("command").toString());
+        }
+        client.post("/worlds/" + copy + "/step", "{\"days\":" + (12 - day) + "}");
+
+        assertThat(log.get("commands").size()).isEqualTo(2);
+        assertThat(client.get("/worlds/" + copy).json())
+                .isEqualTo(client.get("/worlds/" + original).json());
+    }
+
+    @Test
+    void theStreamSendsSnapshotsDaysAndKeepalives() {
+        String id = newWorld();
+        OpenStream stream = openStream(id);
+        awaitLine(stream.lines(), "event: snapshot");
+        client.post("/worlds/" + id + "/step", "{\"days\":3}");
+        awaitLine(stream.lines(), "event: day");
+        await(stream.lines(), line -> line.startsWith("data: ") && line.contains("\"census\":{\"day\":3"));
+        client.delete("/worlds/" + id + "/census");
+        awaitLine(stream.lines(), "event: censusReset");
+        awaitLine(stream.lines(), ": keepalive");
+        stream.body().close();
+    }
+
+    @Test
+    void theStreamSendsThePlayStateOnAttachAndOnEveryChange() {
+        String id = newWorld();
+        OpenStream stream = openStream(id);
+        awaitLine(stream.lines(), "event: playState");
+        awaitLine(stream.lines(), "data: {\"playing\":false,\"daysPerSecond\":2.0}");
+        client.put("/worlds/" + id + "/rate", "{\"daysPerSecond\":5}");
+        awaitLine(stream.lines(), "data: {\"playing\":false,\"daysPerSecond\":5.0}");
+        client.post("/worlds/" + id + "/play", "");
+        awaitLine(stream.lines(), "data: {\"playing\":true,\"daysPerSecond\":5.0}");
+        client.post("/worlds/" + id + "/pause", "");
+        awaitLineAfter(
+                stream.lines(),
+                "data: {\"playing\":true,\"daysPerSecond\":5.0}",
+                "data: {\"playing\":false,\"daysPerSecond\":5.0}");
+        stream.body().close();
+    }
+
+    @Test
+    void theIdlePauseReachesTheStream() {
+        String id = newWorld();
+        OpenStream stream = openStream(id);
+        client.post("/worlds/" + id + "/play", "");
+        awaitLine(stream.lines(), "data: {\"playing\":true,\"daysPerSecond\":2.0}");
+        worlds.pauseAll();
+        awaitLineAfter(
+                stream.lines(),
+                "data: {\"playing\":true,\"daysPerSecond\":2.0}",
+                "data: {\"playing\":false,\"daysPerSecond\":2.0}");
+        stream.body().close();
+    }
+
+    @Test
+    void deletingAWorldEndsItsStream() throws Exception {
+        String id = newWorld();
+        OpenStream stream = openStream(id);
+        awaitLine(stream.lines(), "event: snapshot");
+        client.delete("/worlds/" + id);
+        stream.ended().get(3, TimeUnit.SECONDS);
+    }
+
+    @Test
+    void theStreamOfAnUnknownWorldIs404() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder(client.uri("/worlds/nope/events"))
+                .header("Accept", "text/event-stream")
+                .build();
+        HttpResponse<String> response = client.http().send(request, HttpResponse.BodyHandlers.ofString());
+        assertThat(response.statusCode()).isEqualTo(404);
+    }
+
+    @Test
+    void aJsonNullBodyIs400() {
+        String id = newWorld();
+        assertThat(client.post("/worlds", "null").status()).isEqualTo(400);
+        assertThat(command(id, "null").status()).isEqualTo(400);
+        assertThat(client.post("/worlds/" + id + "/step", "null").status()).isEqualTo(400);
+        assertThat(client.put("/worlds/" + id + "/rate", "null").status()).isEqualTo(400);
+    }
+
+    @Test
+    void aMisspelledFieldIs400() {
+        HttpTestClient.Response response = client.post("/worlds", "{\"seed\":1,\"widht\":5}");
+        assertThat(response.status()).isEqualTo(400);
+        assertThat(response.json().get("error").asString()).contains("widht");
+    }
+
+    @Test
+    void aRateWithoutDaysPerSecondNamesTheField() {
+        String id = newWorld();
+        HttpTestClient.Response response = client.put("/worlds/" + id + "/rate", "{}");
+        assertThat(response.status()).isEqualTo(400);
+        assertThat(response.json().get("error").asString()).contains("daysPerSecond");
+    }
+
+    @Test
+    void aCommandOnAPlayingWorldLandsTheNextDay() throws InterruptedException {
+        String id = newWorld();
+        client.put("/worlds/" + id + "/rate", "{\"daysPerSecond\":10}");
+        client.post("/worlds/" + id + "/play", "");
+        assertThat(spawn(id, 2).status()).isEqualTo(202);
+        long deadline = System.nanoTime() + 3_000_000_000L;
+        while (client.get("/worlds/" + id).json().findValues("spriteKey").size() < 2 && System.nanoTime() < deadline) {
+            Thread.sleep(50);
+        }
+        client.post("/worlds/" + id + "/pause", "");
+        assertThat(client.get("/worlds/" + id).json().findValues("spriteKey")).hasSize(2);
+    }
+
+    private OpenStream openStream(String id) {
+        List<String> lines = new CopyOnWriteArrayList<>();
+        HttpRequest request = HttpRequest.newBuilder(client.uri("/worlds/" + id + "/events"))
+                .header("Accept", "text/event-stream")
+                .build();
+        Stream<String> body = client.http()
+                .sendAsync(request, HttpResponse.BodyHandlers.ofLines())
+                .join()
+                .body();
+        CompletableFuture<Void> ended = new CompletableFuture<>();
+        Thread.ofVirtual().start(() -> {
+            body.forEach(lines::add);
+            ended.complete(null);
+        });
+        return new OpenStream(lines, ended, body);
+    }
+
+    private static void awaitLine(List<String> lines, String start) {
+        await(lines, line -> line.startsWith(start));
+    }
+
+    /** The same play state can be sent twice in one test, so this waits for one after another. */
+    private static void awaitLineAfter(List<String> lines, String earlier, String later) {
+        await(lines, ignored -> lines.contains(earlier) && lines.lastIndexOf(later) > lines.indexOf(earlier));
+    }
+
+    private static void await(List<String> lines, Predicate<String> wanted) {
+        long deadline = System.nanoTime() + 3_000_000_000L;
+        while (lines.stream().noneMatch(wanted)) {
+            assertThat(System.nanoTime()).as("a wanted line in " + lines).isLessThan(deadline);
+            Thread.onSpinWait();
+        }
+    }
+
+    private static List<Integer> days(JsonNode rows) {
+        List<Integer> days = new ArrayList<>();
+        rows.forEach(row -> days.add(row.get("day").asInt()));
+        return days;
+    }
+
+    private int day(String id) {
+        return client.get("/worlds/" + id).json().get("day").asInt();
+    }
+
+    private HttpTestClient.Response command(String id, String json) {
+        return client.post("/worlds/" + id + "/commands", json);
+    }
+
+    @Test
+    void genesListEachSpeciesRangesAndBaseline() {
+        String id = newWorld();
+        JsonNode genes = client.get("/worlds/" + id + "/genes").json();
+        JsonNode first = genes.get("rabbit").get(0);
+        assertThat(first.get("key").asString()).isEqualTo("viewRange");
+        assertThat(first.get("min").asDouble()).isEqualTo(1.0);
+        assertThat(first.get("max").asDouble()).isEqualTo(10.0);
+        assertThat(first.get("baseline").asDouble()).isEqualTo(3.0);
+        assertThat(genes.get("grass").isEmpty()).isTrue();
+    }
+
+    @Test
+    void settingsListsTheDeclarationsWorldFirst() {
+        String id = newWorld();
+        JsonNode declarations = client.get("/worlds/" + id + "/settings").json();
+        assertThat(declarations.get(0).get("owner").asString()).isEqualTo("world");
+        assertThat(declarations.get(0).get("key").asString()).isEqualTo("mutation");
+        assertThat(declarations.get(0).get("shape").asString()).isEqualTo("toggle");
+        assertThat(declarations.get(1).get("key").asString()).isEqualTo("grassPerDrop");
+        assertThat(declarations.get(0).get("description").asString()).isNotBlank();
+        assertThat(declarations.findValuesAsString("shape")).containsOnly("scalar", "toggle");
+        assertThat(declarations.findValuesAsString("owner"))
+                .startsWith("world", "world", "world", "grass", "grass", "rabbit")
+                .containsOnly("world", "grass", "rabbit");
+        assertThat(declarations.findValuesAsString("key")).contains("nourishment", "breedingLoss", "parentMargin");
+        JsonNode stride = null;
+        for (JsonNode declaration : declarations) {
+            if (declaration.get("key").asString().equals("stride")) {
+                stride = declaration;
+            }
+        }
+        assertThat(stride).isNotNull();
+        assertThat(List.of(
+                        stride.get("min").asDouble(),
+                        stride.get("max").asDouble(),
+                        stride.get("step").asDouble(),
+                        stride.get("defaultValue").asDouble()))
+                .containsExactly(1.0, 5.0, 1.0, 3.0);
+        assertThat(client.get("/worlds/nope/settings").status()).isEqualTo(404);
+    }
+
+    @Test
+    void aSettingEditShowsInTheSnapshot() {
+        String id = newWorld();
+        JsonNode edited = command(id, "{\"type\":\"setSetting\",\"owner\":\"rabbit\",\"key\":\"stride\",\"value\":2}")
+                .json();
+        assertThat(edited.get("settings").get("rabbit").get("stride").asDouble())
+                .isEqualTo(2);
+        JsonNode restored = command(id, "{\"type\":\"restoreDefaults\",\"owner\":\"rabbit\"}")
+                .json();
+        assertThat(restored.get("settings").get("rabbit").get("stride").asDouble())
+                .isEqualTo(3);
+    }
+
+    @Test
+    void aBadSettingIs400() {
+        String id = newWorld();
+        HttpTestClient.Response tooFar =
+                command(id, "{\"type\":\"setSetting\",\"owner\":\"rabbit\",\"key\":\"stride\",\"value\":9}");
+        assertThat(tooFar.status()).isEqualTo(400);
+        assertThat(tooFar.json().get("error").asString()).contains("outside");
+        HttpTestClient.Response ownerless = command(id, "{\"type\":\"restoreDefaults\",\"key\":\"stride\"}");
+        assertThat(ownerless.status()).isEqualTo(400);
+        assertThat(ownerless.json().get("error").asString()).contains("needs the owner");
+    }
+
+    @Test
+    void theCensusCarriesGeneMeans() {
+        String id = newWorld();
+        spawn(id, 3);
+        client.post("/worlds/" + id + "/step", "");
+        JsonNode row = client.get("/worlds/" + id + "/census").json().get(0);
+        assertThat(row.get("geneMeans").get("rabbit").get("breedPull").asDouble())
+                .isBetween(0.8, 1.2);
+    }
+
+    private HttpTestClient.Response spawn(String id, int count) {
+        return command(id, "{\"type\":\"spawn\",\"species\":\"rabbit\",\"count\":" + count + "}");
+    }
+
+    @Test
+    void aSpawnTakesGeneOverridesAndRefusesAnUnknownGene() {
+        String id = newWorld();
+        assertThat(command(id, "{\"type\":\"spawn\",\"species\":\"rabbit\",\"count\":2,\"genes\":{\"near.Plant\":0.2}}")
+                        .status())
+                .isEqualTo(200);
+        HttpTestClient.Response refused =
+                command(id, "{\"type\":\"spawn\",\"species\":\"rabbit\",\"count\":2,\"genes\":{\"wings\":1}}");
+        assertThat(refused.status()).isEqualTo(400);
+        assertThat(refused.body()).contains("wings");
+    }
+
+    @Test
+    void aSnapshotCarriesGenes() {
+        String id = newWorld();
+        HttpTestClient.Response response = spawn(id, 1);
+        assertThat(response.json().findValues("genes")).hasSize(1);
+        assertThat(response.json().findValue("genes").has("near.Plant")).isTrue();
+    }
+
+    private String newWorld() {
+        return client.post("/worlds", "{\"seed\":42}").json().get("id").asString();
+    }
+}

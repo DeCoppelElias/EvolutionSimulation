@@ -32,5 +32,5 @@ jobs:
       - name: Attach the jar to the release
         uses: softprops/action-gh-release@v2
         with:
-          files: target/HumanSimulation.jar
+          files: target/EvolutionSimulation.jar
           generate_release_notes: true

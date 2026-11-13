@@ -1,0 +1,19 @@
+package io.github.decoppelelias.evolutionsimulation.domain;
+
+sealed interface GeneSpec {
+    String key();
+
+    record Scalar(String key, double min, double max, double mutationSize) implements GeneSpec {
+        public Scalar {
+            if (key.isBlank()) {
+                throw new IllegalArgumentException("a gene needs a key");
+            }
+            if (!(min <= max)) {
+                throw new IllegalArgumentException("gene " + key + " has min " + min + " above max " + max);
+            }
+            if (!(mutationSize >= 0)) {
+                throw new IllegalArgumentException("gene " + key + " has a negative mutation size " + mutationSize);
+            }
+        }
+    }
+}
